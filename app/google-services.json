@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "217171432969",
+    "firebase_url": "https://feedbackapp-dde9b.firebaseio.com",
+    "project_id": "feedbackapp-dde9b",
+    "storage_bucket": "feedbackapp-dde9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217171432969:android:1e254557f9b93fb9",
+        "android_client_info": {
+          "package_name": "ch.fhnw.ip6_feedbackapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "217171432969-orqi2a9qf5dmtab8d8filnt4nhmofcbt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ch.fhnw.ip6_feedbackapp",
+            "certificate_hash": "321ab6eec502ab03a22fdc026bf5e7ed4129493e"
+          }
+        },
+        {
+          "client_id": "217171432969-mgeqk09tg74qhs9728c8a1nb61h7iojp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAP8HPsctFpQnAWYVMwU1CgYzTf-5zkfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "217171432969-mgeqk09tg74qhs9728c8a1nb61h7iojp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
