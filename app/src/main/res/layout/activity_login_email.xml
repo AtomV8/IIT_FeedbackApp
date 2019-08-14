@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginEmailActivity">
+    tools:context=".LoginEmailActivity"
+    android:background="@drawable/abstract_blur_background">
 
     <ImageView
         android:id="@+id/imgAppIcon2"
@@ -57,6 +58,7 @@
         android:backgroundTint="#D2AE38"
         android:onClick="login"
         android:text="Login"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextPassword" />
@@ -70,6 +72,7 @@
         android:layout_marginEnd="8dp"
         android:onClick="setupNewAccount"
         android:text="Registrieren"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.02"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,6 +87,7 @@
         android:layout_marginEnd="8dp"
         android:onClick="forgotPassword"
         android:text="Passwort vergessen"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonRegister" />

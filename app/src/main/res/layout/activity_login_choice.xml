@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginChoiceActivity">
+    tools:context=".LoginChoiceActivity"
+    android:background="@drawable/abstract_blur_background">
 
     <ImageView
         android:id="@+id/imgAppIcon"
@@ -29,8 +30,13 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
+        android:drawableLeft="@android:drawable/ic_dialog_email"
         android:onClick="emailLogin"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         android:text="E-Mail Login"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,9 +47,14 @@
         android:layout_width="200dp"
         android:layout_height="60dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
+        android:drawableLeft="@drawable/common_google_signin_btn_icon_dark_normal"
         android:onClick="googleLogin"
         android:text="Google Login"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"

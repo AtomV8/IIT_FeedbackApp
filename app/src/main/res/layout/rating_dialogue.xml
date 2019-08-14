@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linLayRatingDialogue"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/ratingDialogueTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:paddingBottom="30dp"
+        android:text="AppName - Bewertung"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textView4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <RatingBar
+        android:id="@+id/ratingDialogueRatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:clickable="true"
+        android:numStars="5"
+        android:progressTint="@color/colorPrimary"
+        android:stepSize=".5" />
+
+    <EditText
+        android:id="@+id/ratingDialogueDescriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Optionaler Text..."
+        android:inputType="textMultiLine"
+        android:paddingTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionTitle" />
+
+    <LinearLayout
+        android:id="@+id/linLayRatingDialoguePublicCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingTop="20dp">
+
+        <CheckBox
+            android:id="@+id/checkBoxRatingDialoguePublic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/colorPrimary"
+            android:checked="true"
+            android:text="Öffentlich"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/checkBoxRatingDialoguePublicDescriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="32dp"
+            android:paddingBottom="8dp"
+            android:text="Diese Bewertung ist für andere Benutzer sichtbar." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linLayRatingDialogueAnonymousCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/checkBoxRatingDialogueAnonymous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/colorPrimary"
+            android:checked="false"
+            android:text="Anonym"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/checkBoxRatingDialogueAnonymousDescriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="32dp"
+            android:text="Diese Bewertung wird unter Ihrem Benutzernamen veröffentlicht." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linyLayRatingDialogueButtons"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:paddingTop="16dp">
+
+        <Button
+            android:id="@+id/ratingDialogueButtonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="ABBRECHEN"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/ratingDialogueButtonsSpacer"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:background="@android:color/transparent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="8sp" />
+
+        <Button
+            android:id="@+id/ratingDialogueButtonSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="SENDEN"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            android:paddingEnd="10dp"/>
+    </LinearLayout>
+
+</LinearLayout>

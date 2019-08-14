@@ -11,4 +11,10 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="accessibility_service_description">Dieser Accessibility Service wird benötigt, um die aktuell im Vordergrund laufende App zu ermitteln.</string>
+    <string name="privacy_settings_device_data">Die Marke und das Modell, sowie Informationen zur Hard- und Software meines Gerätes im Feedback mitsenden.</string>
+    <string name="privacy_settings_gps_position">Meine aktuelle Position im Feedback mitsenden.</string>
+    <string name="privacy_settings_wifi_state">Im Feedback mitsenden, ob mein Gerät aktuell mit einem WLAN verbunden ist.</string>
+    <string name="privacy_settings_mobile_network_state">Im Feedback mitsenden, ob mein Gerät aktuell mit dem Mobilen Netzwerk verbunden ist.</string>
+    <string name="privacy_settings_bluetooth_state">Im Feedback mitsenden, ob Bluetooth an meinem Gerät eingeschaltet ist.</string>
 </resources>

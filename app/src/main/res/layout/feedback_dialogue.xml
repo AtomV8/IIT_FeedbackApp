@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linLayFeedbackDialogue"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/feedbackDialogueTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="10dp"
+        android:text="AppName - Feedback"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        android:text="Kategorie(n) wählen (optional)"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/common_google_signin_btn_text_light_pressed" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroup"
+        android:layout_width="379dp"
+        android:layout_height="wrap_content"
+        app:chipSpacing="8dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPraise"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="Lob"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            app:chipIconVisible="true"
+            app:chipBackgroundColor="@color/bg_chip_state_list"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipComplaint"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="Beschwerde"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            app:chipIconVisible="true"
+            app:chipBackgroundColor="@color/bg_chip_state_list"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipIdea"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="Idee"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            app:chipIconVisible="true"
+            app:chipBackgroundColor="@color/bg_chip_state_list"/>
+    </com.google.android.material.chip.ChipGroup>
+
+    <TextView
+        android:id="@+id/descriptionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="10"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        android:text="Beschreibung"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/common_google_signin_btn_text_light_pressed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chipGroup" />
+
+    <EditText
+        android:id="@+id/FeedbackDialogueDescriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Beschreiben Sie Ihr Anliegen..."
+        android:inputType="textMultiLine"
+        android:maxLines="5"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionTitle" />
+
+    <LinearLayout
+        android:id="@+id/linLayScreenshot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:id="@+id/screenshotThumbnail"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:paddingRight="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_outline_insert_photo" />
+
+        <TextView
+            android:id="@+id/appendScreenshotTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:paddingTop="12dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="8dp"
+            android:text="Screenshot anhängen"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/common_google_signin_btn_text_light_pressed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/screenshotAppendButton"
+            style="@style/Widget.AppCompat.ImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_screenshot_append" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linLayFeedbackDialoguePublicCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/checkBoxFeedbackDialoguePublic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/colorPrimary"
+            android:checked="true"
+            android:text="Öffentlich"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/checkBoxFeedbackDialoguePublicDescriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="32dp"
+            android:paddingBottom="8dp"
+            android:text="Dieses Feedback ist für andere Benutzer sichtbar." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linLayFeedbackDialogueAnonymousCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/checkBoxFeedbackDialogueAnonymous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/colorPrimary"
+            android:checked="false"
+            android:text="Anonym"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/checkBoxFeedbackDialogueAnonymousDescriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="32dp"
+            android:text="Dieses Feedback wird unter Ihrem Benutzernamen veröffentlicht." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linyLayFeedbackDialogueButtons"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:paddingTop="16dp">
+
+        <Button
+            android:id="@+id/feedbackDialogueButtonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="ABBRECHEN"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/feedbackDialogueButtonsSpacer"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:background="@android:color/transparent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="8sp" />
+
+        <Button
+            android:id="@+id/feedbackDialogueButtonSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="SENDEN"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            android:paddingEnd="10dp"/>
+    </LinearLayout>
+
+</LinearLayout>

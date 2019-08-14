@@ -11,19 +11,34 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    public static final String CHANNEL_ID = "Feedback App Channel";
+    public static final String CHANNEL_NAME = "Feedback App - Service um laufende App zu ermitteln";
+
+    private boolean isServiceRunning = false;
+
     private DrawerLayout drawer;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    public FirebaseUser mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("MAINONCREATE", "");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -31,10 +46,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user == null){
+                mUser = firebaseAuth.getCurrentUser();
+                if(mUser == null){
                     Intent i = new Intent(getApplicationContext(), LoginChoiceActivity.class);
                     startActivity(i);
+                }else{
+                    if(!isServiceRunning){
+                        createNotificationChannel();
+                        startService();
+                    }
                 }
             }
         };
@@ -55,9 +75,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MyAppsFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_myApps);
         }
+        if(mUser != null){
+            updateUI();
+        }
+    }
+
+    public void updateUI(){
+        TextView labelUserName = findViewById(R.id.userName);
+        TextView labelUserEmail = findViewById(R.id.userEmail);
+        ImageView imageUserPic = findViewById(R.id.userPic);
+
+        labelUserEmail.setText(mUser.getEmail());
+        labelUserName.setText(mUser.getDisplayName());
     }
 
     public void logout(View view){
+        stopService();
         FirebaseAuth.getInstance().signOut();
     }
 
@@ -85,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
         }
     }
 
@@ -98,6 +135,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop() {
         super.onStop();
         mAuth.removeAuthStateListener(mAuthStateListener);
+    }
+
+    // Start the accessibility service
+    public void startService() {
+        Intent serviceIntent = new Intent(this, AppDetectionService.class);
+        serviceIntent.putExtra("ACTIVATE", true);
+        startService(serviceIntent);
+        isServiceRunning = true;
+        Log.d("BACKGROUNDSERVICE","startService() called");
+    }
+
+    // Stop the accessibility service
+    public void stopService() {
+        Intent serviceIntent = new Intent(this, AppDetectionService.class);
+        removeNotificationChannel();
+        serviceIntent.putExtra("ACTIVATE", false);
+        startService(serviceIntent);
+        isServiceRunning = false;
+        Log.d("BACKGROUNDSERVICE","stopService() called");
+    }
+
+    // Create a notification channel for devices running Android 8.0 or higher
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            serviceChannel.setShowBadge(false);
+            serviceChannel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            assert manager != null;
+            manager.createNotificationChannel(serviceChannel);
+            Log.d("NOTIFICATIONCHANNEL","Notification channel created");
+        }
+    }
+
+    // Remove the notification channel for devices running Android 8.0 or higher
+    private void removeNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            assert manager != null;
+            manager.deleteNotificationChannel(CHANNEL_ID);
+        }
     }
 
 }

@@ -2,21 +2,284 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.widget.TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="SettingsFragment"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/myProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:text="Mein Profil"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/imageViewUserProfilePic"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_gravity="center_horizontal"
+                        android:adjustViewBounds="false"
+                        android:cropToPadding="false"
+                        android:scaleType="fitCenter"
+                        app:srcCompat="@drawable/ic_unknown_app" />
+
+                    <ImageButton
+                        android:id="@+id/imageButtonEditProfilePic"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="bottom|end"
+                        android:background="@null"
+                        android:scaleType="fitCenter"
+                        app:srcCompat="@drawable/ic_editpic" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4"
+                    android:gravity="start|center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textViewUsername"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Username"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="@color/common_google_signin_btn_text_dark_focused" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Benutzername"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/imageButtonEditUsername"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right|end"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_edit_black_24dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4"
+                    android:gravity="start|center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textViewEmailAdress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="your@email-address.com"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="@color/common_google_signin_btn_text_dark_focused" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="E-Mail Adresse"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/spacer3"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@color/lightGray"
+                android:textSize="8sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingTop="16dp">
+
+                <TextView
+                    android:id="@+id/privacySettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="16dp"
+                    android:text="Privatsphäre Einstellungen"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textStyle="bold" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchDeviceData"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:clickable="true"
+                        android:paddingBottom="6dp"
+                        android:text="Gerätedaten teilen"
+                        android:textSize="18sp"
+                        android:theme="@style/SwitchCompatTheme" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="16dp"
+                        android:text="@string/privacy_settings_device_data" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchGPSPosition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:paddingBottom="6dp"
+                        android:text="GPS Position teilen"
+                        android:textSize="18sp"
+                        android:theme="@style/SwitchCompatTheme"
+                        android:thumbTint="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/textViewGPSPosition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="16dp"
+                        android:text="@string/privacy_settings_gps_position" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchWifiState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:paddingBottom="6dp"
+                        android:text="WLAN Status teilen"
+                        android:textSize="18sp"
+                        android:theme="@style/SwitchCompatTheme"
+                        android:thumbTint="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/textViewWifiState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="16dp"
+                        android:text="@string/privacy_settings_wifi_state"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchMobileNetworkState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:paddingBottom="6dp"
+                        android:text="Status des Mobilen Netzwerks teilen"
+                        android:textSize="18sp"
+                        android:theme="@style/SwitchCompatTheme"
+                        android:thumbTint="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/textViewMobileNetworkState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="16dp"
+                        android:text="@string/privacy_settings_mobile_network_state" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchBluetoothState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:paddingBottom="6dp"
+                        android:text="Bluetooth Status teilen"
+                        android:textSize="18sp"
+                        android:theme="@style/SwitchCompatTheme"
+                        android:thumbTint="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/textViewBluetoothState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="16dp"
+                        android:text="@string/privacy_settings_bluetooth_state" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
