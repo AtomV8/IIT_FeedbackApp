@@ -5,12 +5,12 @@ import com.google.firebase.auth.FirebaseUser;
 public class FeedbackObject {
     private FeedbackDetails feedbackDetails;
     private DeviceData deviceData;
-    private FirebaseUser user;
+    private String userid;
 
-    public FeedbackObject(FeedbackDetails feedbackDetails, DeviceData deviceData, FirebaseUser user) {
+    public FeedbackObject(FeedbackDetails feedbackDetails, DeviceData deviceData, String uid) {
         this.feedbackDetails = feedbackDetails;
         this.deviceData = deviceData;
-        this.user = user;
+        this.userid = uid;
     }
 
     private boolean isRating(){
