@@ -49,50 +49,48 @@ public class DeviceData {
 
         /* TODO: Check shared preferences */
 
-        deviceManufacturer = getDeviceManufacturer();
-        deviceModel = getDeviceModel();
+        deviceManufacturer = pullDeviceManufacturer();
+        deviceModel = pullDeviceModel();
 
-        soc = getSOC();
+        soc = pullSOC();
 
-        androidSDK = getSDK();
-        androidVersion = getAndroidVersion();
+        androidSDK = pullSDK();
+        androidVersion = pullAndroidVersion();
 
-        ramTotal = getRAM("free");
-        ramFree = getRAM("total");
+        ramTotal = pullRAM("free");
+        ramFree = pullRAM("total");
 
-        provider = getProvider();
+        provider = pullProvider();
 
-        mobileDataConnectivity = getConnectivity();
+        mobileDataConnectivity = pullConnectivity();
 
-        bluetoothState = getBluetoothState();
+        bluetoothState = pullBluetoothState();
 
-        wifiState = getWifiState();
+        wifiState = pullWifiState();
 
-        gpsState = getGPSState();
+        gpsState = pullGPSState();
 
-        batteryPercentage = getBatteryPercentage();
+        batteryPercentage = pullBatteryPercentage();
 
     }
 
-    // --------------- GETTERS -------------------
-
-    public String getDeviceManufacturer() {
+    public String pullDeviceManufacturer() {
         return Build.MANUFACTURER;
     }
 
-    public String getDeviceModel() {
+    public String pullDeviceModel() {
         return Build.MODEL;
     }
 
-    public String getSDK() {
+    public String pullSDK() {
         return String.valueOf(Build.VERSION.SDK_INT);
     }
 
-    public String getAndroidVersion() {
+    public String pullAndroidVersion() {
         return Build.VERSION.RELEASE;
     }
 
-    public long getRAM(String param){
+    public long pullRAM(String param){
         String[] segs;
         FileReader fstream;
         long memTotal = -1;
@@ -100,7 +98,7 @@ public class DeviceData {
         try {
             fstream = new FileReader(MEM_FILE);
         } catch (FileNotFoundException e) {
-            Log.e("getRAM", "Could not read " + MEM_FILE);
+            Log.e("pullRAM", "Could not read " + MEM_FILE);
             return memFree;
         }
         BufferedReader in = new BufferedReader(fstream, 500);
@@ -117,7 +115,7 @@ public class DeviceData {
                 }
             }
         } catch (IOException e) {
-            Log.e("getRAM", e.toString());
+            Log.e("pullRAM", e.toString());
         }
         if(param == "total"){
             return memTotal;
@@ -127,14 +125,14 @@ public class DeviceData {
         else return -1;
     }
 
-    public String getSOC(){
+    public String pullSOC(){
         String[] segs;
         FileReader fstream;
         String soc = "Unknown";
         try {
             fstream = new FileReader(SOC_FILE);
         } catch (FileNotFoundException e) {
-            Log.e("getSOC", "Could not read " + SOC_FILE);
+            Log.e("pullSOC", "Could not read " + SOC_FILE);
             return soc;
         }
         BufferedReader in = new BufferedReader(fstream, 500);
@@ -147,17 +145,17 @@ public class DeviceData {
                 }
             }
         } catch (IOException e) {
-            Log.e("getSOC", e.toString());
+            Log.e("pullSOC", e.toString());
         }
         return soc;
     }
 
-    public String getProvider(){
+    public String pullProvider(){
         TelephonyManager telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
         return telephonyManager.getSimOperatorName();
     }
 
-    public String getConnectivity(){
+    public String pullConnectivity(){
         TelephonyManager telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
         int networkType = telephonyManager.getNetworkType();
         switch (networkType) {
@@ -181,12 +179,12 @@ public class DeviceData {
         throw new RuntimeException("New type of network");
     }
 
-    public String getBluetoothState(){
+    public String pullBluetoothState(){
         if(BluetoothAdapter.getDefaultAdapter().isEnabled()) return "On";
         return "Off";
     }
 
-    public String getWifiState() {
+    public String pullWifiState() {
         WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
         if (wifiMgr.isWifiEnabled()) { // Wi-Fi adapter is ON
@@ -203,17 +201,19 @@ public class DeviceData {
         }
     }
 
-    public String getGPSState(){
+    public String pullGPSState(){
         LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE );
         if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) return "On";
         return "Off";
     }
 
-    public int getBatteryPercentage(){
+    public int pullBatteryPercentage(){
         BatteryManager bm = (BatteryManager)context.getSystemService(Context.BATTERY_SERVICE);
         int batteryPercentage = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
         return batteryPercentage;
     }
+
+    // --------------- GETTERS -------------------
 
     public double getLatitude() {
         return latitude;

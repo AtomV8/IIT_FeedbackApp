@@ -99,7 +99,7 @@ public class AppDetectionService extends AccessibilityService {
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle(NOTIFICATION_CONTENT_TITLE)
                     .setContentText(foregroundAppName)
-                    .setSmallIcon(R.drawable.ic_stat_onesignal_default)
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
                     .setContentIntent(pendingIntent)
                     .setColor(getResources().getColor(R.color.colorPrimary))
                     // Add the action buttons (FEEDBACK / RATING)

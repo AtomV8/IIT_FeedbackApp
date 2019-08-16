@@ -349,7 +349,7 @@ public class FeedbackActivity extends AppCompatActivity {
     }
 
     public void getFeedback(View v){
-        FeedbackLoader fl = new FeedbackLoader(appDetails, false);
+        FeedbackLoader fl = new FeedbackLoader(appDetails, false, userid);
         fl.getFeedback(FeedbackLoader.MODE_FEEDBACKACTIVITY);
     }
 
@@ -466,11 +466,12 @@ public class FeedbackActivity extends AppCompatActivity {
 
 
         public void gatherData() {
+            String username = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
             DeviceData deviceData = new DeviceData(FeedbackActivity.this);
             if (isRating) {
-                feedbackObject = new FeedbackObject(ratingDetails, deviceData, userID);
+                feedbackObject = new FeedbackObject(ratingDetails, deviceData, userID, username);
             } else {
-                feedbackObject = new FeedbackObject(feedbackDetails, deviceData, userID);
+                feedbackObject = new FeedbackObject(feedbackDetails, deviceData, userID, username);
             }
 
             // Wait for location to be detected if that setting is enabled

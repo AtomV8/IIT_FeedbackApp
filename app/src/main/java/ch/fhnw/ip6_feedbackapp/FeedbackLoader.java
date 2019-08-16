@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FeedbackLoader {
@@ -23,8 +24,8 @@ public class FeedbackLoader {
     boolean thisVersionOnly;
     String userid;
 
-    List<FeedbackEntryObject> feedbackCommunity;
-    List<FeedbackEntryObject> listMyFeedback;
+    ArrayList<FeedbackEntryObject> feedbackCommunity;
+    ArrayList<FeedbackEntryObject> listMyFeedback;
     FeedbackEntryObject myLatestFeedback;
 
     public FeedbackLoader(AppDetails appDetails, boolean thisVersionOnly, String userid) {
@@ -35,13 +36,14 @@ public class FeedbackLoader {
 
     public void getFeedback(int mode) {
         if (mode == MODE_FEEDBACKACTIVITY) {
-            getListMostPopular();
+            feedbackCommunity = getListMostPopular();
         } else {
 
         }
     }
 
-    private void getListOwnFeedback() {
+    private ArrayList<FeedbackEntryObject> getListOwnFeedback() {
+        final ArrayList<FeedbackEntryObject> list = new ArrayList<>();
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -68,25 +70,31 @@ public class FeedbackLoader {
                 .orderByKey()
                 .limitToLast(5);
         query.addValueEventListener(valueEventListener);
+        return list;
     }
 
-    private void getListMostPopular() {
+    private ArrayList<FeedbackEntryObject> getListMostPopular() {
+        final ArrayList<FeedbackEntryObject> list = new ArrayList<>();
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d("QUERYSUCCESSFUL", "Worked");
                 if (dataSnapshot.getChildrenCount() != 0) {
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        String username = child.child("username").getValue(String.class);
+                        Log.d("USERNAME", username);
                         if (child.hasChild("feedbackDetails/complaint")) {
                             FeedbackDetails feedbackDetails = child.child("feedbackDetails").child("appDetails").getValue(FeedbackDetails.class);
+                            list.add(new FeedbackEntryObject(feedbackDetails, username, false));
                         } else {
                             RatingDetails ratingDetails = child.child("feedbackDetails").getValue(RatingDetails.class);
+                            list.add(new FeedbackEntryObject(ratingDetails, username, false));
                         }
 
                     }
                 }
+                Log.d("LISTELEMENTS", Integer.toString(list.size()));
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -105,6 +113,7 @@ public class FeedbackLoader {
                     .limitToLast(5);
             query.addValueEventListener(valueEventListener);
         }
+        return list;
     }
 
     private void getOwnLatest() {
@@ -119,7 +128,7 @@ public class FeedbackLoader {
 
             }
         };
-        Query query = FirebaseDatabase.getInstance().getReference(appDetails.getPackageName().replace('.', ':'))
+        Query query = FirebaseDatabase.getInstance().getReference()
                 .orderByKey()
                 .limitToLast(1);
         query.addValueEventListener(valueEventListener);
