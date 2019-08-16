@@ -177,7 +177,7 @@
             android:layout_weight="1"
             android:paddingStart="32dp"
             android:paddingBottom="8dp"
-            android:text="Dieses Feedback ist für andere Benutzer sichtbar." />
+            android:text="Legt fest, ob dieses Feedback für andere Benutzer sichtbar ist." />
     </LinearLayout>
 
     <LinearLayout
@@ -203,7 +203,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingStart="32dp"
-            android:text="Dieses Feedback wird unter Ihrem Benutzernamen veröffentlicht." />
+            android:text="Legt fest, ob dieses Feedback unter Angabe Ihres Benutzernamens veröffentlicht wird." />
     </LinearLayout>
 
     <LinearLayout

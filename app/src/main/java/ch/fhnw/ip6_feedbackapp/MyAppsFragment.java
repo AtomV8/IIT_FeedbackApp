@@ -6,18 +6,19 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,37 +26,49 @@ import java.util.List;
 
 import static ch.fhnw.ip6_feedbackapp.AppDetectionService.SOURCE_FEEDBACK_APP;
 import static ch.fhnw.ip6_feedbackapp.AppDetectionService.TYPE_DEFAULT;
-import static ch.fhnw.ip6_feedbackapp.AppDetectionService.SOURCE_NOTIFICATION;
 
 public class MyAppsFragment extends Fragment {
+
+    ListView listView;
+    ProgressBar progressBar;
+    SwipeRefreshLayout refreshLayout;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_apps, container, false);
-        ListView listView = view.findViewById(R.id.appsList);
+        listView = view.findViewById(R.id.appsList);
+        refreshLayout = view.findViewById(R.id.swiperefreshAppsList);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                InstalledApps installedApps = new InstalledApps();
+                installedApps.start();
+            }
+        });
+
+
+        progressBar = view.findViewById(R.id.appsListProgressBar);
+        progressBar.setVisibility(View.VISIBLE);
         InstalledApps installedApps = new InstalledApps();
         installedApps.start();
-        List<AppDetails> appsList =
-        Log.d("LISTCOUNT", Integer.toString(appsList.size()));
-        AppsListAdapter appsListAdapter = new AppsListAdapter(getActivity(), appsList);
-        listView.setAdapter(appsListAdapter);
-        Log.d("ADAPTERCOUNT", Integer.toString(appsListAdapter.getCount()));
         return view;
     }
 
-    // Helper method to exclude system apps
-    private boolean isSystemPackage(PackageInfo pkgInfo) {
-        return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+    public void onAppsListReceived(ArrayList<AppDetails> appsList) {
+        refreshLayout.setRefreshing(false);
+        progressBar.setVisibility(View.GONE);
+        AppsListAdapter appsListAdapter = new AppsListAdapter(getActivity(), appsList);
+        listView.setAdapter(appsListAdapter);
     }
 
     // List adapter for list of installed apps
-    class AppsListAdapter extends ArrayAdapter<String>{
+    class AppsListAdapter extends ArrayAdapter<String> {
 
         Context context;
-        List<AppDetails> installedApps;
+        ArrayList<AppDetails> installedApps;
 
-        AppsListAdapter(Context c, List<AppDetails> apps){
+        AppsListAdapter(Context c, ArrayList<AppDetails> apps) {
             super(c, R.layout.apps_list_entry);
             this.installedApps = apps;
             this.context = c;
@@ -93,15 +106,12 @@ public class MyAppsFragment extends Fragment {
         public int getCount() {
             return installedApps.size();
         }
-
     }
 
-    private class InstalledApps extends Thread{
+    private class InstalledApps extends Thread {
 
-        ArrayList<AppDetails> apps;
-
-        private List<AppDetails> getInstalledApps() {
-            List<AppDetails> res = new ArrayList<>();
+        private void getInstalledApps() {
+            final ArrayList<AppDetails> res = new ArrayList<>();
             List<PackageInfo> packs = getContext().getPackageManager().getInstalledPackages(0);
             for (int i = 0; i < packs.size(); i++) {
                 PackageInfo p = packs.get(i);
@@ -110,11 +120,17 @@ public class MyAppsFragment extends Fragment {
                     String appName = p.applicationInfo.loadLabel(getContext().getPackageManager()).toString();
                     Drawable icon = p.applicationInfo.loadIcon(getContext().getPackageManager());
                     String packageVersion = p.versionName;
-                    res.add(new AppDetails( packageName, appName, icon, packageVersion));
+                    res.add(new AppDetails(packageName, appName, icon, packageVersion));
                 }
             }
             Collections.sort(res);
-            return res;
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    onAppsListReceived(res);
+                }
+            });
+
         }
 
         @Override
@@ -122,8 +138,10 @@ public class MyAppsFragment extends Fragment {
             getInstalledApps();
         }
 
-        public ArrayList<AppDetails> getApps() {
-            return apps;
+        // Helper method to exclude system apps
+        private boolean isSystemPackage(PackageInfo pkgInfo) {
+            return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
         }
     }
+
 }

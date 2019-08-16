@@ -6,14 +6,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.fragment.app.Fragment;
-
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +15,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -101,7 +99,7 @@ public class SettingsFragment extends Fragment {
         // TODO: SET PROFILE PIC
     }
 
-    private void initializeButtons(){
+    private void initializeButtons() {
         // Edit username button
         ImageButton editUsername = view.findViewById(R.id.imageButtonEditUsername);
         editUsername.setOnClickListener(new View.OnClickListener() {
@@ -129,21 +127,20 @@ public class SettingsFragment extends Fragment {
                         userNameChangeDialog.cancel();
                         String newUserName = fieldUserName.getText().toString();
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        if(newUserName != user.getDisplayName()){
+                        if (newUserName != user.getDisplayName()) {
                             UserProfileChangeRequest changeUsername = new UserProfileChangeRequest.Builder().setDisplayName(newUserName).build();
                             user.updateProfile(changeUsername).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
+                                    if (task.isSuccessful()) {
                                         updateUI();
-                                    }
-                                    else{
+                                    } else {
                                         Toast t = Toast.makeText(getContext(), "Benutzername konnte nicht aktualisiert werden", Toast.LENGTH_LONG);
                                         t.show();
                                     }
                                 }
                             });
-                        }else{
+                        } else {
                             Toast t = Toast.makeText(getContext(), "Benutzername ist identisch mit Vorherigem", Toast.LENGTH_LONG);
                             t.show();
                         }
@@ -168,7 +165,7 @@ public class SettingsFragment extends Fragment {
         switchGPSPosition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(switchGPSPosition.isChecked()){
+                if (switchGPSPosition.isChecked()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (getContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
                             String[] permissions = new String[]{
@@ -186,7 +183,7 @@ public class SettingsFragment extends Fragment {
         switchWifiState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(switchWifiState.isChecked()){
+                if (switchWifiState.isChecked()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (getContext().checkSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_DENIED) {
                             String[] permissions = new String[]{
@@ -205,7 +202,7 @@ public class SettingsFragment extends Fragment {
         switchMobileNetworkState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(switchMobileNetworkState.isChecked()){
+                if (switchMobileNetworkState.isChecked()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (getContext().checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
                             String[] permissions = new String[]{
@@ -237,89 +234,74 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    public void saveSettings(){
+    public void saveSettings() {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
 
-        boolean shareDeviceData =  switchDeviceData.isChecked();
-        Log.d("SWITCHDEVICEDATAIS", Boolean.toString(shareDeviceData));
+        boolean shareDeviceData = switchDeviceData.isChecked();
         editor.putBoolean(SHARED_PREFERENCES_DEVICE_DATA, shareDeviceData);
 
         boolean shareGPSPosition = switchGPSPosition.isChecked();
-        Log.d("SWITCHGPSIS", Boolean.toString(shareGPSPosition));
         editor.putBoolean(SHARED_PREFERENCES_GPS_LOCATION, shareGPSPosition);
 
         boolean shareWifiState = switchWifiState.isChecked();
-        Log.d("SWITCHWIFIIS", Boolean.toString(shareWifiState));
         editor.putBoolean(SHARED_PREFERENCES_WIFI, shareWifiState);
 
         boolean shareMobileNWState = switchMobileNetworkState.isChecked();
-        Log.d("SWITCHNWIS", Boolean.toString(shareMobileNWState));
         editor.putBoolean(SHARED_PREFERENCES_MOBILE_DATA, shareMobileNWState);
 
         boolean shareBTStatus = switchBluetoothState.isChecked();
-        Log.d("SWITCHBTIS", Boolean.toString(shareBTStatus));
         editor.putBoolean(SHARED_PREFERENCES_BLUETOOTH, shareBTStatus);
 
         editor.apply();
     }
 
-    private void loadSettings(){
+    private void loadSettings() {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        Log.d("DEVICEDATAKEYEXISTS", Boolean.toString(sharedPreferences.contains(SHARED_PREFERENCES_DEVICE_DATA)));
         boolean shareDeviceData = sharedPreferences.getBoolean("SHARED_PREFERENCES_DEVICE_DATA", true);
-        Log.d("DEVICEDATAKEYVALUE", Boolean.toString(shareDeviceData));
         switchDeviceData.setChecked(shareDeviceData);
 
-        Log.d("GPSKEYVALUEEXISTS", Boolean.toString(sharedPreferences.contains(SHARED_PREFERENCES_GPS_LOCATION)));
         boolean shareGPSPosition = sharedPreferences.getBoolean("SHARED_PREFERENCES_GPS_LOCATION", true);
-        Log.d("GPSKEYVALUE", Boolean.toString(shareGPSPosition));
         switchGPSPosition.setChecked(shareGPSPosition);
 
-        Log.d("WIFIKEYVALUEEXISTS", Boolean.toString(sharedPreferences.contains(SHARED_PREFERENCES_WIFI)));
         boolean shareWifiState = sharedPreferences.getBoolean("SHARED_PREFERENCES_WIFI", true);
-        Log.d("WIFIKEYVALUE", Boolean.toString(shareWifiState));
         switchWifiState.setChecked(shareWifiState);
 
-        Log.d("MOBILEDATAKEYVALUEEXI", Boolean.toString(sharedPreferences.contains(SHARED_PREFERENCES_MOBILE_DATA)));
         boolean shareMobileNWState = sharedPreferences.getBoolean("SHARED_PREFERENCES_MOBILE_DATA", true);
-        Log.d("MOBILEDATAKEYVALUE", Boolean.toString(shareMobileNWState));
         switchMobileNetworkState.setChecked(shareMobileNWState);
 
-        Log.d("BTKEYVALUEEXISTS", Boolean.toString(sharedPreferences.contains(SHARED_PREFERENCES_BLUETOOTH)));
         boolean shareBTStatus = sharedPreferences.getBoolean("SHARED_PREFERENCES_BLUETOOTH", true);
-        Log.d("BTKEYVALUE", Boolean.toString(shareBTStatus));
         switchBluetoothState.setChecked(shareBTStatus);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch(requestCode){
+        switch (requestCode) {
             case PERMISSION_CODE_BLUETOOTH: {
-                if(!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                if (!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     switchBluetoothState.setChecked(false);
                     Toast.makeText(getContext(), "Zugriff verweigert", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
             case PERMISSION_CODE_GPS_LOCATION: {
-                if(!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                if (!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     switchGPSPosition.setChecked(false);
                     Toast.makeText(getContext(), "Zugriff verweigert", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
             case PERMISSION_CODE_MOBILE_NETWORK: {
-                if(!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                if (!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     switchMobileNetworkState.setChecked(false);
                     Toast.makeText(getContext(), "Zugriff verweigert", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
             case PERMISSION_CODE_WIFI: {
-                if(!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                if (!(grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     switchWifiState.setChecked(false);
                     Toast.makeText(getContext(), "Zugriff verweigert", Toast.LENGTH_SHORT).show();
                 }

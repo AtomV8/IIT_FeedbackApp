@@ -77,7 +77,7 @@
             android:layout_weight="1"
             android:paddingStart="32dp"
             android:paddingBottom="8dp"
-            android:text="Diese Bewertung ist für andere Benutzer sichtbar." />
+            android:text="Legt fest, ob diese Bewertung für andere Benutzer sichtbar ist." />
     </LinearLayout>
 
     <LinearLayout
@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingStart="32dp"
-            android:text="Diese Bewertung wird unter Ihrem Benutzernamen veröffentlicht." />
+            android:text="Legt fest, ob diese Bewertung unter Angabe Ihres Benutzernamens veröffentlicht wird." />
     </LinearLayout>
 
     <LinearLayout

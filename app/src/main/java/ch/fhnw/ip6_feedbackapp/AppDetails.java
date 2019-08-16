@@ -4,16 +4,16 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
-public class AppDetails implements Comparable< AppDetails > {
+public class AppDetails implements Comparable<AppDetails> {
     private String appVersion;
     private String packageName;
     private String appName;
     private Drawable appIcon;
 
 
-    public AppDetails() { }
+    public AppDetails() {
+    }
 
     public AppDetails(String packageName, String name, Drawable icon, String appVersion) {
         this.appVersion = appVersion;
@@ -23,9 +23,8 @@ public class AppDetails implements Comparable< AppDetails > {
     }
 
     // Constructor that gets all data from a package name
-    public AppDetails(String pkgName, Context context){
+    public AppDetails(String pkgName, Context context) {
         this.packageName = pkgName;
-        Log.d("APPDETAILSCONSTRUCTOR", packageName);
 
         // Get app name
         PackageManager packageManager = context.getPackageManager();
@@ -34,26 +33,21 @@ public class AppDetails implements Comparable< AppDetails > {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        Log.d("APPDETAILSCONSTRUCTOR", appName);
 
         // Get app icon
-        try
-        {
+        try {
             appIcon = packageManager.getApplicationIcon(packageName);
-        }
-        catch (PackageManager.NameNotFoundException e)
-        {
+        } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
         // Get app version
         try {
-            PackageInfo pInfo  = packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA);
+            PackageInfo pInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA);
             appVersion = pInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        Log.d("APPDETAILSCONSTRUCTOR", appVersion);
     }
 
     public String getAppVersion() {

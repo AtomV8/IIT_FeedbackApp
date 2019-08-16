@@ -16,7 +16,8 @@ public abstract class FeedbackDetailsInterface {
     private boolean makePublic;
     private boolean publishAnonymously;
 
-    public FeedbackDetailsInterface(){}
+    public FeedbackDetailsInterface() {
+    }
 
     public FeedbackDetailsInterface(AppDetails appDetails, String text, Timestamp timestamp, boolean makePublic, boolean publishAnonymously) {
         this.appDetails = appDetails;

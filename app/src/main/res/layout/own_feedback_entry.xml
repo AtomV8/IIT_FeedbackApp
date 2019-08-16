@@ -64,18 +64,21 @@
                         android:id="@+id/dislikeIcon"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:visibility="gone"
                         app:srcCompat="@mipmap/ic_dislike_fg" />
 
                     <ImageView
                         android:id="@+id/ideaIcon"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:visibility="gone"
                         app:srcCompat="@mipmap/ic_idea_fg" />
 
                     <ImageView
                         android:id="@+id/likeIcon"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:visibility="gone"
                         app:srcCompat="@mipmap/ic_like_fg" />
 
                     <RatingBar
@@ -84,19 +87,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="6dp"
-                        android:progressTint="@color/colorPrimary" />
+                        android:progressTint="@color/colorPrimary"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
             <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="50dp"
+                android:layout_height="50dp">
 
-                <ImageView
-                    android:id="@+id/imageView2"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    app:srcCompat="@drawable/ic_thumb_up" />
+                <CheckBox
+                    android:id="@+id/checkBoxLike"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:button="@drawable/checkbox_likebutton"
+                    android:gravity="center" />
 
                 <FrameLayout
                     android:layout_width="30dp"

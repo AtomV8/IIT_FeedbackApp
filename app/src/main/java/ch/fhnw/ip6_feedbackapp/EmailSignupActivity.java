@@ -1,14 +1,13 @@
 package ch.fhnw.ip6_feedbackapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -37,21 +36,20 @@ public class EmailSignupActivity extends AppCompatActivity {
         // Pass data from the LoginEmailActivity into the appropriate TextFields if necessary
         Intent intent = getIntent();
         String email = intent.getStringExtra("email");
-        if(email != null){
+        if (email != null) {
             emailField.setText(email);
         }
         String password = intent.getStringExtra("password");
-        if(password != null){
+        if (password != null) {
             passwordField.setText(password);
         }
-        Log.d("Intent", "Password is " + password + " and email is " + email);
 
         mAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
+                if (user != null) {
                     Intent i = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(i);
                 }
@@ -71,13 +69,13 @@ public class EmailSignupActivity extends AppCompatActivity {
         mAuth.removeAuthStateListener(mAuthStateListener);
     }
 
-    public void register(View view){
+    public void register(View view) {
 
         String email = emailField.getText().toString();
         String password = passwordField.getText().toString();
         String username = usernameField.getText().toString();
 
-        if(!email.isEmpty() && !password.isEmpty() && !username.isEmpty()){
+        if (!email.isEmpty() && !password.isEmpty() && !username.isEmpty()) {
 
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -85,20 +83,18 @@ public class EmailSignupActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
-                                Log.d("REG", "createUserWithEmail:success");
                                 changeUserProfile();
                                 sendEmail();
                                 //FirebaseUser user = mAuth.getCurrentUser();
                                 //updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Log.w("REG", "createUserWithEmail:failure", task.getException());
                                 Toast.makeText(getApplicationContext(), "Fehler bei der Registrierung",
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
-        }else{
+        } else {
             Toast t = Toast.makeText(getApplicationContext(), "Bitte alle Felder ausfüllen", Toast.LENGTH_LONG);
             t.show();
         }
@@ -118,7 +114,7 @@ public class EmailSignupActivity extends AppCompatActivity {
                 });
     }
 
-    public void changeUserProfile(){
+    public void changeUserProfile() {
         FirebaseUser user = mAuth.getInstance().getCurrentUser();
         String username = usernameField.getText().toString();
         UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
@@ -126,7 +122,6 @@ public class EmailSignupActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 FirebaseUser user2 = mAuth.getInstance().getCurrentUser();
-                Log.i("Username", user2.getDisplayName().toString());
             }
         });
     }

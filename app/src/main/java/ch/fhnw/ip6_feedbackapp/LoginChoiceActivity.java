@@ -1,15 +1,13 @@
 package ch.fhnw.ip6_feedbackapp;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
-import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -24,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
+public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
@@ -40,7 +38,7 @@ public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiC
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
+                if (user != null) {
                     Intent i = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(i);
                 }
@@ -49,13 +47,13 @@ public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiC
     }
 
     // Forward to E-Mail Login screen
-    public void emailLogin(View view){
+    public void emailLogin(View view) {
         Intent i = new Intent(getApplicationContext(), LoginEmailActivity.class);
         startActivity(i);
     }
 
     // Execute Google Login
-    public void googleLogin(View view){
+    public void googleLogin(View view) {
         mAuth = FirebaseAuth.getInstance();
         GoogleSignInOptions qso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -71,7 +69,7 @@ public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiC
     }
 
     // Google Login Helper Method
-    private void login(){
+    private void login() {
         Intent signIn = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signIn, 1);
     }
@@ -80,9 +78,9 @@ public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiC
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1){
+        if (requestCode == 1) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if(result.isSuccess()){
+            if (result.isSuccess()) {
                 GoogleSignInAccount account = result.getSignInAccount();
                 // Create Firebase User
                 loginToFirebase(account);
@@ -91,14 +89,13 @@ public class LoginChoiceActivity extends AppCompatActivity implements GoogleApiC
     }
 
     // Google Login Helper Method
-    public void loginToFirebase(GoogleSignInAccount account){
+    public void loginToFirebase(GoogleSignInAccount account) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Log.d("LOGIN", "Google Login worked");
+                        if (task.isSuccessful()) {
                             Intent i = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(i);
                         }

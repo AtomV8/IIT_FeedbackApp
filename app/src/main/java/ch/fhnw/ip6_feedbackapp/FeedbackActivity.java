@@ -1,60 +1,66 @@
 package ch.fhnw.ip6_feedbackapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.audiofx.Equalizer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Checkable;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.chip.Chip;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
-import static ch.fhnw.ip6_feedbackapp.AppDetectionService.SOURCE_FEEDBACK_APP;
+import static ch.fhnw.ip6_feedbackapp.AppDetectionService.SOURCE_NOTIFICATION;
 import static ch.fhnw.ip6_feedbackapp.AppDetectionService.TYPE_DEFAULT;
 import static ch.fhnw.ip6_feedbackapp.AppDetectionService.TYPE_FEEDBACK;
 import static ch.fhnw.ip6_feedbackapp.AppDetectionService.TYPE_RATING;
-
-import static ch.fhnw.ip6_feedbackapp.AppDetectionService.SOURCE_NOTIFICATION;
 import static ch.fhnw.ip6_feedbackapp.SettingsFragment.SHARED_PREFERENCES_GPS_LOCATION;
 import static ch.fhnw.ip6_feedbackapp.SettingsFragment.SHARED_PREFERENCES_NAME;
 
@@ -84,6 +90,16 @@ public class FeedbackActivity extends AppCompatActivity {
 
     String userid;
 
+    FeedbackLoader feedbackLoader;
+
+    ListView communityFeedbackListView;
+    TextView communityFeedbackListEmptyTextView;
+
+    LinearLayout ownFeedbackLinLay;
+    TextView ownFeedbackEmptyTextView;
+
+    CheckBox checkBoxOnlyCurrentVersion;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +114,6 @@ public class FeedbackActivity extends AppCompatActivity {
         Intent caller = getIntent();
         callPackageName = caller.getStringExtra("App");
         callType = caller.getIntExtra("Type", 0);
-        Log.d("CALLTYPE", Integer.toString(callType));
         callSource = caller.getIntExtra("Source", 0);
         activity = this;
         appDetails = new AppDetails(callPackageName, this);
@@ -112,6 +127,14 @@ public class FeedbackActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        removeFeedback();
+        feedbackLoader = new FeedbackLoader(this, appDetails, userid);
+        feedbackLoader.start();
+        super.onResume();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -122,10 +145,18 @@ public class FeedbackActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     // Initialize the layout
     private void buildAppPage(final String packageName, int type, int source) {
         final String appName = appDetails.getAppName();
+        checkBoxOnlyCurrentVersion = findViewById(R.id.checkBoxOnlyCurrentVersion);
+        checkBoxOnlyCurrentVersion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                removeFeedback();
+                feedbackLoader = new FeedbackLoader(FeedbackActivity.this, appDetails, userid);
+                feedbackLoader.start();
+            }
+        });
         String appVersionNumber = appDetails.getAppVersion();
         // Set app icon and title
         TextView appTitle = findViewById(R.id.appPageTitle);
@@ -139,13 +170,17 @@ public class FeedbackActivity extends AppCompatActivity {
         } else {
             appIcon.setImageResource(R.drawable.ic_unknown_app);
         }
+        communityFeedbackListView = findViewById(R.id.listViewCommunityFeedback);
+        communityFeedbackListEmptyTextView = findViewById(R.id.textViewNoFeedbackCommunity);
+
+        ownFeedbackLinLay = findViewById(R.id.linLayFeedbackOwn);
+        ownFeedbackEmptyTextView = findViewById(R.id.textViewNoFeedbackOwn);
 
         // Initialize the feedback popup
         feedbackButton = (Button) findViewById(R.id.btnFeedback);
         feedbackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("FEEDBACKBUTTONPRESSED", "feedback alert dialogue should pop up now");
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(FeedbackActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.feedback_dialogue, null);
                 TextView title = (TextView) mView.findViewById(R.id.feedbackDialogueTitle);
@@ -186,6 +221,7 @@ public class FeedbackActivity extends AppCompatActivity {
                 final AlertDialog feedbackDialog = mBuilder.create();
 
 
+                // Cancel button logic
                 Button buttonCancel = mView.findViewById(R.id.feedbackDialogueButtonCancel);
                 // Go back to the previous app if the source was a notification click on one of the action buttons
                 if (callSource == SOURCE_NOTIFICATION && callType != TYPE_DEFAULT) {
@@ -210,29 +246,37 @@ public class FeedbackActivity extends AppCompatActivity {
                 final AppDetails appDetailsToSend = FeedbackActivity.this.appDetails;
                 appDetailsToSend.setAppIcon(null);
 
+
+                // Send button logic
                 Button buttonSend = mView.findViewById(R.id.feedbackDialogueButtonSend);
                 buttonSend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if (pendingFeedback == null) {
-                            FeedbackDetails feedbackDetails = new FeedbackDetails(
-                                    FeedbackActivity.this.appDetails,
-                                    feedbackText.getText().toString(),
-                                    new Timestamp(new Date().getTime()),
-                                    checkBoxPublic.isChecked(),
-                                    checkBoxAnonymous.isChecked(),
-                                    chipComplaint.isChecked(),
-                                    chipIdea.isChecked(),
-                                    chipPraise.isChecked()
-                            );
-                            pendingFeedback = new FeedbackSender(feedbackDetails);
-                            pendingFeedback.start();
+                            if (feedbackText.getText().toString().matches("")) {
+                                Toast.makeText(getApplicationContext(), "Bitte schreiben Sie einen kurzen Text zu ihrem Feedback", Toast.LENGTH_LONG).show();
+                            } else {
+                                FeedbackDetails feedbackDetails = new FeedbackDetails(
+                                        FeedbackActivity.this.appDetails,
+                                        feedbackText.getText().toString(),
+                                        new Timestamp(new Date().getTime()),
+                                        checkBoxPublic.isChecked(),
+                                        checkBoxAnonymous.isChecked(),
+                                        chipComplaint.isChecked(),
+                                        chipIdea.isChecked(),
+                                        chipPraise.isChecked()
+                                );
+                                pendingFeedback = new FeedbackSender(feedbackDetails);
+                                pendingFeedback.start();
+                                feedbackDialog.cancel();
+                            }
                         } else {
                             Toast.makeText(getApplicationContext(), "Letztes Feedback noch in Bearbeitung...", Toast.LENGTH_LONG).show();
                         }
-                        feedbackDialog.cancel();
+
                     }
                 });
+
                 feedbackDialog.show();
             }
         });
@@ -242,7 +286,6 @@ public class FeedbackActivity extends AppCompatActivity {
         ratingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("RATINGBUTTONPRESSED", "rating alert dialogue should pop up now");
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(FeedbackActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.rating_dialogue, null);
                 TextView title = (TextView) mView.findViewById(R.id.ratingDialogueTitle);
@@ -348,11 +391,6 @@ public class FeedbackActivity extends AppCompatActivity {
         finish();
     }
 
-    public void getFeedback(View v){
-        FeedbackLoader fl = new FeedbackLoader(appDetails, false, userid);
-        fl.getFeedback(FeedbackLoader.MODE_FEEDBACKACTIVITY);
-    }
-
     // Helper class to get gps coordinates
     class GPSLocationHelper {
         private LocationManager locationManager;
@@ -376,7 +414,6 @@ public class FeedbackActivity extends AppCompatActivity {
                     locationListener = new LocationListener() {
                         @Override
                         public void onLocationChanged(Location location) {
-                            Log.d("LOCATIONDETECTED", "LD");
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
                             pendingFeedback.receiveGPSCoordinates(latitude, longitude);
@@ -415,15 +452,299 @@ public class FeedbackActivity extends AppCompatActivity {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                             locationManager.requestSingleUpdate(criteria, locationListener, looper);
-                            Log.d("LOCATIONREQUESTED", "LR");
                         }
                     } else {
                         locationManager.requestSingleUpdate(criteria, locationListener, looper);
-                        Log.d("LOCATIONREQUESTED", "LR");
                     }
                 }
             });
+        }
+    }
 
+    // Callback function that is called once the FeedbackLoader has loaded the feedback entries
+    public void onReceiveFeedback(ArrayList<FeedbackLoader.FeedbackEntryObject> feedbackEntryObjects) {
+        // Only proceed if list has more than one element
+        if (feedbackEntryObjects.size() > 1) {
+            // First prepare the community feedback
+            ArrayList<FeedbackLoader.FeedbackEntryObject> communityFeedbackEntries = feedbackEntryObjects;
+            // Remove feedback for other versions if checkbox "only current version" is checked
+            if (FeedbackActivity.this.checkBoxOnlyCurrentVersion.isChecked()) {
+                ArrayList<FeedbackLoader.FeedbackEntryObject> wrongVersion = new ArrayList<>();
+                for (FeedbackLoader.FeedbackEntryObject feo : communityFeedbackEntries) {
+                    if (feo.feedbackDetails.getAppDetails().getAppVersion() != appDetails.getAppVersion()) {
+                        wrongVersion.add(feo);
+                    }
+                }
+                communityFeedbackEntries.remove(wrongVersion);
+            }
+            // After filtering check again if list has more than one element
+            if (communityFeedbackEntries.size() > 1) {
+                // Copy this list to use it later for the own feedback
+                ArrayList<FeedbackLoader.FeedbackEntryObject> listForOwnFeedback = communityFeedbackEntries;
+                // Sort by number of likes, then timestamp descending
+                Collections.sort(communityFeedbackEntries);
+                // Insert the feedback into the view
+                CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, communityFeedbackEntries);
+                communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
+                communityFeedbackListView.setVisibility(View.VISIBLE);
+                communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+
+                // Now prepare the own latest feedback
+                for (FeedbackLoader.FeedbackEntryObject feo : listForOwnFeedback) {
+                    ArrayList<FeedbackLoader.FeedbackEntryObject> wrongUser = new ArrayList<>();
+                    if (feo.getUserid() != userid) {
+                        wrongUser.add(feo);
+                    }
+                    listForOwnFeedback.remove(wrongUser);
+                }
+                Collections.sort(listForOwnFeedback, new Comparator<FeedbackLoader.FeedbackEntryObject>() {
+                    @Override
+                    public int compare(FeedbackLoader.FeedbackEntryObject feedbackEntryObject, FeedbackLoader.FeedbackEntryObject t1) {
+                        try {
+                            Long timeStampThis = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(feedbackEntryObject.feedbackDetails.getTimestamp()).getTime();
+                            Long timeStampOther = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(t1.feedbackDetails.getTimestamp()).getTime();
+                            return timeStampThis.compareTo(timeStampOther);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        return 0;
+                    }
+                });
+                FeedbackLoader.FeedbackEntryObject latestOwnFeedback = listForOwnFeedback.get(0);
+                putOwnFeedbackIntoView(latestOwnFeedback);
+
+            } else if (communityFeedbackEntries.size() == 1) {
+                CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, feedbackEntryObjects);
+                communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
+                communityFeedbackListView.setVisibility(View.VISIBLE);
+                communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+
+                if (communityFeedbackEntries.get(0).userid == userid) {
+                    FeedbackLoader.FeedbackEntryObject latestOwnFeedback = communityFeedbackEntries.get(0);
+                    putOwnFeedbackIntoView(latestOwnFeedback);
+                }
+            }
+        } else if (feedbackEntryObjects.size() == 1) {
+            CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, feedbackEntryObjects);
+            communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
+            communityFeedbackListView.setVisibility(View.VISIBLE);
+            communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+
+            if (feedbackEntryObjects.get(0).userid == userid) {
+                FeedbackLoader.FeedbackEntryObject latestOwnFeedback = feedbackEntryObjects.get(0);
+                putOwnFeedbackIntoView(latestOwnFeedback);
+            }
+        }
+    }
+
+    private void removeFeedback() {
+        communityFeedbackListView.setAdapter(null);
+        if (ownFeedbackEmptyTextView.getVisibility() != View.VISIBLE) {
+            ownFeedbackLinLay.removeViewAt(1);
+        }
+    }
+
+    private void putOwnFeedbackIntoView(FeedbackLoader.FeedbackEntryObject latestOwnFeedback) {
+        // Prepare the view
+        ownFeedbackEmptyTextView.setVisibility(View.GONE);
+        LayoutInflater layoutInflater = LayoutInflater.from(FeedbackActivity.this);
+        View entry = layoutInflater.inflate(R.layout.feedback_entry, null);
+        TextView userName = entry.findViewById(R.id.textViewUsername);
+        TextView timeStamp = entry.findViewById(R.id.textViewTimeStamp);
+        TextView likeCounter = entry.findViewById(R.id.textViewLikeCounter);
+        ImageView dislikeIcon = entry.findViewById(R.id.dislikeIcon);
+        ImageView ideaIcon = entry.findViewById(R.id.ideaIcon);
+        ImageView likeIcon = entry.findViewById(R.id.likeIcon);
+        RatingBar starsBar = entry.findViewById(R.id.ratingBar);
+        TextView feedbackText = entry.findViewById(R.id.feedbackText);
+        CheckBox checkBoxLike = entry.findViewById(R.id.checkBoxLike);
+        final TextView invisibleFeedbackID = entry.findViewById(R.id.textViewInvisibleFeedbackID);
+        FeedbackDetailsInterface feedbackDetails = latestOwnFeedback.feedbackDetails;
+
+        // Put the feedback ID in an invisible textfield (needed to make the like feature work)
+        invisibleFeedbackID.setText(latestOwnFeedback.feedbackID);
+
+        // Initialize UI elements
+        boolean isRating = latestOwnFeedback.isRating;
+        if (isRating) {
+            starsBar.setVisibility(View.VISIBLE);
+            starsBar.setRating(((RatingDetails) feedbackDetails).getRating());
+        } else {
+            if (((FeedbackDetails) feedbackDetails).isPraise()) {
+                likeIcon.setVisibility(View.VISIBLE);
+            }
+            if (((FeedbackDetails) feedbackDetails).isComplaint()) {
+                dislikeIcon.setVisibility(View.VISIBLE);
+            }
+            if (((FeedbackDetails) feedbackDetails).isIdea()) {
+                ideaIcon.setVisibility(View.VISIBLE);
+            }
+        }
+
+
+        boolean anonymous = latestOwnFeedback.feedbackDetails.isPublishAnonymously();
+        if (anonymous) {
+            userName.setText("Anonym");
+        } else {
+            userName.setText(latestOwnFeedback.username);
+        }
+        timeStamp.setText(latestOwnFeedback.feedbackDetails.getTimestamp());
+        likeCounter.setText(Integer.toString(latestOwnFeedback.feedbackDetails.getLikes()));
+        String description = latestOwnFeedback.feedbackDetails.getText();
+        if (description != "" && description != null) {
+            feedbackText.setText(description);
+        } else {
+            feedbackText.setVisibility(View.GONE);
+        }
+
+        checkBoxLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+
+                } else {
+                    //likeFeedback(invisibleFeedbackID.getText().toString());
+                }
+            }
+        });
+        ownFeedbackLinLay.addView(entry);
+    }
+
+    // List adapter for list of community feedback
+    class CommunityFeedbackListAdapter extends ArrayAdapter<FeedbackLoader.FeedbackEntryObject> {
+
+        Context context;
+        ArrayList<FeedbackLoader.FeedbackEntryObject> communityFeedbackList;
+
+        CommunityFeedbackListAdapter(Context c, ArrayList<FeedbackLoader.FeedbackEntryObject> feedbackEntryObjects) {
+            super(c, R.layout.feedback_entry);
+            this.communityFeedbackList = feedbackEntryObjects;
+            this.context = c;
+        }
+
+        // Method that is called when the communityFeedbackList gets updated
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            // Get the row elements for the view
+            LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+            View row = layoutInflater.inflate(R.layout.feedback_entry, parent, false);
+            TextView userName = row.findViewById(R.id.textViewUsername);
+            TextView timeStamp = row.findViewById(R.id.textViewTimeStamp);
+            TextView likeCounter = row.findViewById(R.id.textViewLikeCounter);
+            ImageView dislikeIcon = row.findViewById(R.id.dislikeIcon);
+            ImageView ideaIcon = row.findViewById(R.id.ideaIcon);
+            ImageView likeIcon = row.findViewById(R.id.likeIcon);
+            RatingBar starsBar = row.findViewById(R.id.ratingBar);
+            TextView feedbackText = row.findViewById(R.id.feedbackText);
+            CheckBox checkBoxLike = row.findViewById(R.id.checkBoxLike);
+            final TextView invisibleFeedbackID = row.findViewById(R.id.textViewInvisibleFeedbackID);
+            FeedbackDetailsInterface feedbackDetails = communityFeedbackList.get(position).feedbackDetails;
+
+            // Put the feedback ID in an invisible textfield (needed to make the like feature work)
+            invisibleFeedbackID.setText(communityFeedbackList.get(position).feedbackID);
+
+            // Fill in the rows
+            boolean isRating = communityFeedbackList.get(position).isRating;
+            if (isRating) {
+                starsBar.setVisibility(View.VISIBLE);
+                starsBar.setRating(((RatingDetails) feedbackDetails).getRating());
+            } else {
+                if (((FeedbackDetails) feedbackDetails).isPraise()) {
+                    likeIcon.setVisibility(View.VISIBLE);
+                }
+                if (((FeedbackDetails) feedbackDetails).isComplaint()) {
+                    dislikeIcon.setVisibility(View.VISIBLE);
+                }
+                if (((FeedbackDetails) feedbackDetails).isIdea()) {
+                    ideaIcon.setVisibility(View.VISIBLE);
+                }
+            }
+
+            boolean anonymous = communityFeedbackList.get(position).feedbackDetails.isPublishAnonymously();
+            if (anonymous) {
+                userName.setText("Anonym");
+            } else {
+                userName.setText(communityFeedbackList.get(position).username);
+            }
+            timeStamp.setText(communityFeedbackList.get(position).feedbackDetails.getTimestamp());
+            likeCounter.setText(Integer.toString(communityFeedbackList.get(position).feedbackDetails.getLikes()));
+            String description = communityFeedbackList.get(position).feedbackDetails.getText();
+            if (description != "" && description != null) {
+                feedbackText.setText(description);
+            } else {
+                feedbackText.setVisibility(View.GONE);
+            }
+
+            checkBoxLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if (isChecked) {
+
+                    } else {
+                        //likeFeedback(invisibleFeedbackID.getText().toString());
+                    }
+                }
+            });
+            return row;
+        }
+
+        public void likeFeedback(String feedbackID) {
+            // Put a new like object into firebase db
+            final FirebaseDatabase db = FirebaseDatabase.getInstance();
+            DatabaseReference refUserLikes = db.getReference("likes" + "/" + userid);
+            refUserLikes.push().setValue(feedbackID);
+
+            // Increment likes count on feedback object in firebase db
+            DatabaseReference upvotesRef = db.getReference(callPackageName + "/" + feedbackID + "/feedbackDetails/likes");
+            upvotesRef.runTransaction(new Transaction.Handler() {
+                @NonNull
+                @Override
+                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                    Integer likesCurrent = mutableData.getValue(Integer.class);
+                    mutableData.setValue(likesCurrent + 1);
+
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                }
+            });
+        }
+
+        public void dislikeFeedback(String feedbackID) {
+            final FirebaseDatabase db = FirebaseDatabase.getInstance();
+
+
+        }
+
+        public void checkIfLiked(final String feedbackID) {
+            final FirebaseDatabase db = FirebaseDatabase.getInstance();
+            DatabaseReference ref = db.getReference("likes" + "/" + userid);
+            ValueEventListener eventListener = new ValueEventListener() {
+                boolean likeExists = false;
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    boolean likeExists = dataSnapshot.hasChild(feedbackID);
+                    onReceiveLikeExists(likeExists);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    onReceiveLikeExists(likeExists);
+                }
+            };
+            ref.addListenerForSingleValueEvent(eventListener);
+        }
+
+        public void onReceiveLikeExists(boolean exists) {
+        }
+
+        @Override
+        public int getCount() {
+            return communityFeedbackList.size();
         }
     }
 
@@ -437,9 +758,7 @@ public class FeedbackActivity extends AppCompatActivity {
         boolean isRating;
 
         FeedbackSender() {
-            Log.d("FEEDBACKSENDER ERSTELLT", "Standard Konstruktor");
             userID = FeedbackActivity.this.userid;
-            Log.d("USERIDINFEEDBACKSENDER", userID);
         }
 
         FeedbackSender(FeedbackDetails feedbackDetails) {
@@ -455,11 +774,8 @@ public class FeedbackActivity extends AppCompatActivity {
 
         // Get gps coordinates from gpsLocationHelper
         public void receiveGPSCoordinates(double lat, double lon) {
-            Log.d("LOCATIONRECEIVED", "GPS Location Received");
             feedbackObject.getDeviceData().setLatitude(lat);
-            Log.d("LOCATIONRECEIVED", "Latitude is " + Double.toString(lat));
             feedbackObject.getDeviceData().setLongitude(lon);
-            Log.d("LOCATIONRECEIVED", "Longitude is " + Double.toString(lon));
             // OK now send the feedback
             sendToDB();
         }
@@ -478,7 +794,6 @@ public class FeedbackActivity extends AppCompatActivity {
             SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             if (sharedPreferences.getBoolean(SHARED_PREFERENCES_GPS_LOCATION, true)) {
                 GPSLocationHelper gpsLocationHelper = new GPSLocationHelper();
-                Log.d("GPSLOCATIONREQUESTED", "GPS Location Requested");
             } else {
                 // Otherwise send the feedback straight away
                 sendToDB();
@@ -486,12 +801,11 @@ public class FeedbackActivity extends AppCompatActivity {
         }
 
         public void sendToDB() {
-            Log.d("DATABASECALL", "Datenbankverbindung wird hergestellt");
             FirebaseDatabase db = FirebaseDatabase.getInstance();
-            DatabaseReference ref = db.getReference(appDetails.getPackageName().replace('.',':'));
-            if(isRating){
+            DatabaseReference ref = db.getReference(appDetails.getPackageName().replace('.', ':'));
+            if (isRating) {
                 ref.push().setValue(feedbackObject);
-            }else{
+            } else {
                 ref.push().setValue(feedbackObject);
             }
             FeedbackActivity.this.pendingFeedback = null;

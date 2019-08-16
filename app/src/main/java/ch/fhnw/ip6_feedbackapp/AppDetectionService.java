@@ -31,7 +31,7 @@ public class AppDetectionService extends AccessibilityService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(!intent.getBooleanExtra("ACTIVATE", true)){
+        if (!intent.getBooleanExtra("ACTIVATE", true)) {
             //disableSelf();
         }
         return super.onStartCommand(intent, flags, startId);
@@ -68,45 +68,46 @@ public class AppDetectionService extends AccessibilityService {
     }
 
     @Override
-    public void onInterrupt() {}
+    public void onInterrupt() {
+    }
 
-    private void updateNotification(){
-            // Open current app's page in feedback app if notification main body clicked
-            Intent notificationIntent = new Intent(this, FeedbackActivity.class);
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            notificationIntent.putExtra("App", foregroundAppPackageName);
-            notificationIntent.putExtra("Type", TYPE_DEFAULT);
-            notificationIntent.putExtra("Source", SOURCE_NOTIFICATION);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    private void updateNotification() {
+        // Open current app's page in feedback app if notification main body clicked
+        Intent notificationIntent = new Intent(this, FeedbackActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        notificationIntent.putExtra("App", foregroundAppPackageName);
+        notificationIntent.putExtra("Type", TYPE_DEFAULT);
+        notificationIntent.putExtra("Source", SOURCE_NOTIFICATION);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // Feedback to current app if button FEEDBACK clicked
-            Intent feedbackIntent = new Intent(this, FeedbackActivity.class);
-            feedbackIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            feedbackIntent.putExtra("App", foregroundAppPackageName);
-            feedbackIntent.putExtra("Type", TYPE_FEEDBACK);
-            feedbackIntent.putExtra("Source", SOURCE_NOTIFICATION);
-            PendingIntent pendingFeedbackIntent = PendingIntent.getActivity(this, 1, feedbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Feedback to current app if button FEEDBACK clicked
+        Intent feedbackIntent = new Intent(this, FeedbackActivity.class);
+        feedbackIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        feedbackIntent.putExtra("App", foregroundAppPackageName);
+        feedbackIntent.putExtra("Type", TYPE_FEEDBACK);
+        feedbackIntent.putExtra("Source", SOURCE_NOTIFICATION);
+        PendingIntent pendingFeedbackIntent = PendingIntent.getActivity(this, 1, feedbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // Rating for the current app if button RATING clicked
-            Intent ratingIntent = new Intent(this, FeedbackActivity.class);
-            ratingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            ratingIntent.putExtra("App", foregroundAppPackageName);
-            ratingIntent.putExtra("Type", TYPE_RATING);
-            ratingIntent.putExtra("Source", SOURCE_NOTIFICATION);
-            PendingIntent pendingRatingIntent = PendingIntent.getActivity(this, 2, ratingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Rating for the current app if button RATING clicked
+        Intent ratingIntent = new Intent(this, FeedbackActivity.class);
+        ratingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ratingIntent.putExtra("App", foregroundAppPackageName);
+        ratingIntent.putExtra("Type", TYPE_RATING);
+        ratingIntent.putExtra("Source", SOURCE_NOTIFICATION);
+        PendingIntent pendingRatingIntent = PendingIntent.getActivity(this, 2, ratingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // Build the notification
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle(NOTIFICATION_CONTENT_TITLE)
-                    .setContentText(foregroundAppName)
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setContentIntent(pendingIntent)
-                    .setColor(getResources().getColor(R.color.colorPrimary))
-                    // Add the action buttons (FEEDBACK / RATING)
-                    .addAction(R.mipmap.ic_launcher, ACTION_FEEDBACK_TITLE, pendingFeedbackIntent)
-                    .addAction(R.mipmap.ic_launcher, ACTION_RATING_TITLE, pendingRatingIntent)
-                    .build();
-            startForeground(1, notification);
+        // Build the notification
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(NOTIFICATION_CONTENT_TITLE)
+                .setContentText(foregroundAppName)
+                .setSmallIcon(R.drawable.ic_stat_onesignal_default)
+                .setContentIntent(pendingIntent)
+                .setColor(getResources().getColor(R.color.colorPrimary))
+                // Add the action buttons (FEEDBACK / RATING)
+                .addAction(R.mipmap.ic_launcher, ACTION_FEEDBACK_TITLE, pendingFeedbackIntent)
+                .addAction(R.mipmap.ic_launcher, ACTION_RATING_TITLE, pendingRatingIntent)
+                .build();
+        startForeground(1, notification);
     }
 
 }

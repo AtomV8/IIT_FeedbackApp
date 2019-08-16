@@ -1,16 +1,5 @@
 package ch.fhnw.ip6_feedbackapp;
 
-import androidx.annotation.NonNull;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -23,6 +12,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final String CHANNEL_ID = "Feedback App Channel";
@@ -47,11 +47,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 mUser = firebaseAuth.getCurrentUser();
-                if(mUser == null){
+                if (mUser == null) {
                     Intent i = new Intent(getApplicationContext(), LoginChoiceActivity.class);
                     startActivity(i);
-                }else{
-                    if(!isServiceRunning){
+                } else {
+                    if (!isServiceRunning) {
                         createNotificationChannel();
                         startService();
                     }
@@ -71,16 +71,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MyAppsFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_myApps);
         }
-        if(mUser != null){
+        if (mUser != null) {
             updateUI();
         }
     }
 
-    public void updateUI(){
+    public void updateUI() {
         TextView labelUserName = findViewById(R.id.userName);
         TextView labelUserEmail = findViewById(R.id.userEmail);
         ImageView imageUserPic = findViewById(R.id.userPic);
@@ -89,14 +89,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         labelUserName.setText(mUser.getDisplayName());
     }
 
-    public void logout(View view){
+    public void logout(View view) {
         stopService();
         FirebaseAuth.getInstance().signOut();
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.nav_myApps:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MyAppsFragment()).commit();
                 break;
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)){
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
@@ -143,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         serviceIntent.putExtra("ACTIVATE", true);
         startService(serviceIntent);
         isServiceRunning = true;
-        Log.d("BACKGROUNDSERVICE","startService() called");
     }
 
     // Stop the accessibility service
@@ -153,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         serviceIntent.putExtra("ACTIVATE", false);
         startService(serviceIntent);
         isServiceRunning = false;
-        Log.d("BACKGROUNDSERVICE","stopService() called");
     }
 
     // Create a notification channel for devices running Android 8.0 or higher
@@ -170,12 +168,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             assert manager != null;
             manager.createNotificationChannel(serviceChannel);
-            Log.d("NOTIFICATIONCHANNEL","Notification channel created");
         }
     }
 
     // Remove the notification channel for devices running Android 8.0 or higher
-    private void removeNotificationChannel(){
+    private void removeNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             assert manager != null;

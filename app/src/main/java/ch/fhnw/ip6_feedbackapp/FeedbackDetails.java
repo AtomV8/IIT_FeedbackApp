@@ -7,7 +7,6 @@ public class FeedbackDetails extends FeedbackDetailsInterface {
     private boolean isComplaint;
     private boolean isIdea;
     private boolean isPraise;
-    /* TODO: IMAGE */
 
     public FeedbackDetails() {
     }

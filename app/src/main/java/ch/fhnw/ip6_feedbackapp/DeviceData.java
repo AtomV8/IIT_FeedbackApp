@@ -1,6 +1,5 @@
 package ch.fhnw.ip6_feedbackapp;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.location.LocationManager;
 import android.net.wifi.WifiInfo;
@@ -8,7 +7,6 @@ import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -39,15 +37,13 @@ public class DeviceData {
     double latitude = -1;
     double longitude = -1;
 
-    public DeviceData(Context context){
+    public DeviceData(Context context) {
         this.context = context;
         getData();
     }
 
 
     public void getData() {
-
-        /* TODO: Check shared preferences */
 
         deviceManufacturer = pullDeviceManufacturer();
         deviceModel = pullDeviceModel();
@@ -90,7 +86,7 @@ public class DeviceData {
         return Build.VERSION.RELEASE;
     }
 
-    public long pullRAM(String param){
+    public long pullRAM(String param) {
         String[] segs;
         FileReader fstream;
         long memTotal = -1;
@@ -98,7 +94,6 @@ public class DeviceData {
         try {
             fstream = new FileReader(MEM_FILE);
         } catch (FileNotFoundException e) {
-            Log.e("pullRAM", "Could not read " + MEM_FILE);
             return memFree;
         }
         BufferedReader in = new BufferedReader(fstream, 500);
@@ -115,24 +110,21 @@ public class DeviceData {
                 }
             }
         } catch (IOException e) {
-            Log.e("pullRAM", e.toString());
         }
-        if(param == "total"){
+        if (param == "total") {
             return memTotal;
-        }else if(param == "free"){
+        } else if (param == "free") {
             return memFree;
-        }
-        else return -1;
+        } else return -1;
     }
 
-    public String pullSOC(){
+    public String pullSOC() {
         String[] segs;
         FileReader fstream;
         String soc = "Unknown";
         try {
             fstream = new FileReader(SOC_FILE);
         } catch (FileNotFoundException e) {
-            Log.e("pullSOC", "Could not read " + SOC_FILE);
             return soc;
         }
         BufferedReader in = new BufferedReader(fstream, 500);
@@ -141,46 +133,61 @@ public class DeviceData {
             while ((line = in.readLine()) != null) {
                 if (line.indexOf("Hardware") >= 0) {
                     segs = line.trim().split(" ");
-                    soc = segs[segs.length -1];
+                    soc = segs[segs.length - 1];
                 }
             }
         } catch (IOException e) {
-            Log.e("pullSOC", e.toString());
         }
         return soc;
     }
 
-    public String pullProvider(){
+    public String pullProvider() {
         TelephonyManager telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
         return telephonyManager.getSimOperatorName();
     }
 
-    public String pullConnectivity(){
+    public String pullConnectivity() {
         TelephonyManager telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
         int networkType = telephonyManager.getNetworkType();
         switch (networkType) {
-            case TelephonyManager.NETWORK_TYPE_1xRTT: return "1xRTT";
-            case TelephonyManager.NETWORK_TYPE_CDMA: return "CDMA";
-            case TelephonyManager.NETWORK_TYPE_EDGE: return "EDGE";
-            case TelephonyManager.NETWORK_TYPE_EHRPD: return "eHRPD";
-            case TelephonyManager.NETWORK_TYPE_EVDO_0: return "EVDO rev. 0";
-            case TelephonyManager.NETWORK_TYPE_EVDO_A: return "EVDO rev. A";
-            case TelephonyManager.NETWORK_TYPE_EVDO_B: return "EVDO rev. B";
-            case TelephonyManager.NETWORK_TYPE_GPRS: return "GPRS";
-            case TelephonyManager.NETWORK_TYPE_HSDPA: return "HSDPA";
-            case TelephonyManager.NETWORK_TYPE_HSPA: return "HSPA";
-            case TelephonyManager.NETWORK_TYPE_HSPAP: return "HSPA+";
-            case TelephonyManager.NETWORK_TYPE_HSUPA: return "HSUPA";
-            case TelephonyManager.NETWORK_TYPE_IDEN: return "iDen";
-            case TelephonyManager.NETWORK_TYPE_LTE: return "LTE";
-            case TelephonyManager.NETWORK_TYPE_UMTS: return "UMTS";
-            case TelephonyManager.NETWORK_TYPE_UNKNOWN: return "Unknown";
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+                return "1xRTT";
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+                return "CDMA";
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+                return "EDGE";
+            case TelephonyManager.NETWORK_TYPE_EHRPD:
+                return "eHRPD";
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                return "EVDO rev. 0";
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                return "EVDO rev. A";
+            case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                return "EVDO rev. B";
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+                return "GPRS";
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+                return "HSDPA";
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+                return "HSPA";
+            case TelephonyManager.NETWORK_TYPE_HSPAP:
+                return "HSPA+";
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+                return "HSUPA";
+            case TelephonyManager.NETWORK_TYPE_IDEN:
+                return "iDen";
+            case TelephonyManager.NETWORK_TYPE_LTE:
+                return "LTE";
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+                return "UMTS";
+            case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+                return "Unknown";
         }
         throw new RuntimeException("New type of network");
     }
 
-    public String pullBluetoothState(){
-        if(BluetoothAdapter.getDefaultAdapter().isEnabled()) return "On";
+    public String pullBluetoothState() {
+        // if(BluetoothAdapter.getDefaultAdapter().isEnabled()) return "On";
         return "Off";
     }
 
@@ -191,24 +198,23 @@ public class DeviceData {
 
             WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
 
-            if( wifiInfo.getNetworkId() == -1 ){
+            if (wifiInfo.getNetworkId() == -1) {
                 return "On"; // Not connected to an access point
             }
             return "Connected"; // Connected to an access point
-        }
-        else {
+        } else {
             return "Off"; // Wi-Fi adapter is OFF
         }
     }
 
-    public String pullGPSState(){
-        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE );
-        if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) return "On";
+    public String pullGPSState() {
+        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) return "On";
         return "Off";
     }
 
-    public int pullBatteryPercentage(){
-        BatteryManager bm = (BatteryManager)context.getSystemService(Context.BATTERY_SERVICE);
+    public int pullBatteryPercentage() {
+        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
         int batteryPercentage = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
         return batteryPercentage;
     }
