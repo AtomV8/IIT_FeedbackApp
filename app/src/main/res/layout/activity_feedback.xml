@@ -151,73 +151,72 @@
             android:background="@color/lightGray"
             android:textSize="8sp" />
 
+        <LinearLayout
+            android:id="@+id/linLayFeedbackOwn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textViewFeedbackOwn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:text="Mein letztes Feedback" />
+
+            <TextView
+                android:id="@+id/textViewNoFeedbackOwn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sie haben zu dieser App noch kein Feedback gegeben."
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/spacer2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/lightGray"
+            android:textSize="8sp" />
+
         <ScrollView
             android:id="@+id/scrollViewFeedback"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:id="@+id/linLayFeedback"
+                android:id="@+id/linLayFeedbackCommunity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/linLayFeedbackOwn"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/textViewFeedbackOwn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="16dp"
-                        android:text="Mein letztes Feedback" />
-
-                    <TextView
-                        android:id="@+id/textViewNoFeedbackOwn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sie haben zu dieser App noch kein Feedback gegeben."
-                        android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                        android:textSize="18sp" />
-                </LinearLayout>
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/spacer2"
+                    android:id="@+id/textViewFeedbackCommunity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/lightGray"
-                    android:textSize="8sp" />
+                    android:paddingBottom="16dp"
+                    android:text="Community Feedback" />
 
-                <LinearLayout
-                    android:id="@+id/linLayFeedbackCommunity"
+                <TextView
+                    android:id="@+id/textViewNoFeedbackCommunity"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_height="wrap_content"
+                    android:text="Zu dieser App hat noch niemand Feedback gegeben."
+                    android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                    android:textSize="18sp" />
 
-                    <TextView
-                        android:id="@+id/textViewFeedbackCommunity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="16dp"
-                        android:text="Community Feedback" />
-
-                    <TextView
-                        android:id="@+id/textViewNoFeedbackCommunity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Zu dieser App hat noch niemand Feedback gegeben."
-                        android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                        android:textSize="18sp" />
-
-                </LinearLayout>
             </LinearLayout>
-
         </ScrollView>
+
+        <Button
+            android:id="@+id/buttonGetFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="getFeedback"
+            android:text="GET FEEDBACK" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

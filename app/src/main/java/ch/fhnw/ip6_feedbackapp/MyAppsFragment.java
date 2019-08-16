@@ -86,8 +86,8 @@ public class MyAppsFragment extends Fragment {
             TextView appTitle = row.findViewById(R.id.appPageTitle);
 
             // Fill in the rows
-            appImage.setImageDrawable(installedApps.get(position).getIcon());
-            appTitle.setText(installedApps.get(position).getName());
+            appImage.setImageDrawable(installedApps.get(position).getAppIcon());
+            appTitle.setText(installedApps.get(position).getAppName());
             final String packageName = installedApps.get(position).getPackageName();
 
             row.setOnClickListener(new View.OnClickListener() {

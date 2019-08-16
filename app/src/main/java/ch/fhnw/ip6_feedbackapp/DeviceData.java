@@ -1,6 +1,5 @@
 package ch.fhnw.ip6_feedbackapp;
 
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.location.LocationManager;
@@ -16,28 +15,39 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class DeviceData extends Application {
+public class DeviceData {
 
     final private String MEM_FILE = "/proc/meminfo";
     final private String SOC_FILE = "/proc/cpuinfo";
 
-    String deviceManufacturer;
-    String deviceModel;
-    String soc;
-    String androidSDK;
-    String androidVersion;
-    long ramTotal;
-    long ramFree;
-    String provider;
-    String mobileDataConnectivity;
-    String bluetoothState;
-    String wifiState;
-    String gpsState;
-    int batteryPercentage;
-    /* TODO: GPS COORDINATES */
+    private Context context;
+
+    String deviceManufacturer = "not provided";
+    String deviceModel = "not provided";
+    String soc = "not provided";
+    String androidSDK = "not provided";
+    String androidVersion = "not provided";
+    long ramTotal = -1;
+    long ramFree = -1;
+    String provider = "not provided";
+    String mobileDataConnectivity = "not provided";
+    String bluetoothState = "not provided";
+    String wifiState = "not provided";
+    String gpsState = "not provided";
+    int batteryPercentage = -1;
+
+    double latitude = -1;
+    double longitude = -1;
+
+    public DeviceData(Context context){
+        this.context = context;
+        getData();
+    }
 
 
-    public void getEverything() {
+    public void getData() {
+
+        /* TODO: Check shared preferences */
 
         deviceManufacturer = getDeviceManufacturer();
         deviceModel = getDeviceModel();
@@ -143,12 +153,12 @@ public class DeviceData extends Application {
     }
 
     public String getProvider(){
-        TelephonyManager telephonyManager = ((TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE));
+        TelephonyManager telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
         return telephonyManager.getSimOperatorName();
     }
 
     public String getConnectivity(){
-        TelephonyManager telephonyManager = ((TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE));
+        TelephonyManager telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
         int networkType = telephonyManager.getNetworkType();
         switch (networkType) {
             case TelephonyManager.NETWORK_TYPE_1xRTT: return "1xRTT";
@@ -177,7 +187,7 @@ public class DeviceData extends Application {
     }
 
     public String getWifiState() {
-        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
         if (wifiMgr.isWifiEnabled()) { // Wi-Fi adapter is ON
 
@@ -194,15 +204,33 @@ public class DeviceData extends Application {
     }
 
     public String getGPSState(){
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE );
+        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE );
         if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) return "On";
         return "Off";
     }
 
     public int getBatteryPercentage(){
-        BatteryManager bm = (BatteryManager)getSystemService(BATTERY_SERVICE);
+        BatteryManager bm = (BatteryManager)context.getSystemService(Context.BATTERY_SERVICE);
         int batteryPercentage = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
         return batteryPercentage;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    // --------------- SETTERS -------------------
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }
 
