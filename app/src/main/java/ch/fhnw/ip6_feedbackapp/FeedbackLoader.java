@@ -63,6 +63,7 @@ public class FeedbackLoader extends Thread {
                 if (dataSnapshot.getChildrenCount() != 0) {
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         String username = child.child("username").getValue(String.class);
+                        String userid = child.child("userid").getValue(String.class);
                         // Distinguish between feedback and rating
                         if (child.hasChild("feedbackDetails/complaint")) {
                             FeedbackDetails feedbackDetails = child.child("feedbackDetails").getValue(FeedbackDetails.class);
@@ -92,7 +93,7 @@ public class FeedbackLoader extends Thread {
         ref.addValueEventListener(valueEventListener);
     }
 
-    // Get all feedback entries from the db (used for FeedbackActivity)
+    // Get all feedback entries from the db (used for MyFeedbackFragment)
     private void getAllFeedback() {
         final ArrayList<FeedbackEntryObject> list = new ArrayList<>();
         ValueEventListener valueEventListener = new ValueEventListener() {
@@ -102,6 +103,7 @@ public class FeedbackLoader extends Thread {
                     for (DataSnapshot appPkg : dataSnapshot.getChildren()) {
                         for (DataSnapshot feedback : appPkg.getChildren()) {
                             String username = feedback.child("username").getValue(String.class);
+                            String userid = feedback.child("userid").getValue(String.class);
                             // Distinguish between feedback and rating
                             if (feedback.hasChild("feedbackDetails/complaint")) {
                                 FeedbackDetails feedbackDetails = feedback.child("feedbackDetails").getValue(FeedbackDetails.class);
@@ -209,7 +211,9 @@ public class FeedbackLoader extends Thread {
             try {
                 Long timeStampThis = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(feedbackDetails.getTimestamp()).getTime();
                 Long timeStampOther = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(other.feedbackDetails.getTimestamp()).getTime();
-                return timeStampThis.compareTo(timeStampOther);
+                int i = timeStampThis.compareTo(timeStampOther);
+                if(i != 0) return -1;
+                return i;
             } catch (ParseException e) {
                 e.printStackTrace();
             }

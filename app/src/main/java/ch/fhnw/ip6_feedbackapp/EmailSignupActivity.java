@@ -29,9 +29,9 @@ public class EmailSignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_signup);
 
-        emailField = (EditText) findViewById(R.id.editTextEmail);
-        passwordField = (EditText) findViewById(R.id.editTextPassword);
-        usernameField = (EditText) findViewById(R.id.editTextUsername);
+        emailField = findViewById(R.id.editTextEmail);
+        passwordField = findViewById(R.id.editTextPassword);
+        usernameField = findViewById(R.id.editTextUsername);
 
         // Pass data from the LoginEmailActivity into the appropriate TextFields if necessary
         Intent intent = getIntent();
@@ -101,7 +101,7 @@ public class EmailSignupActivity extends AppCompatActivity {
     }
 
     public void sendEmail() {
-        FirebaseUser user = mAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         user.sendEmailVerification()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -115,13 +115,13 @@ public class EmailSignupActivity extends AppCompatActivity {
     }
 
     public void changeUserProfile() {
-        FirebaseUser user = mAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String username = usernameField.getText().toString();
         UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
         user.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                FirebaseUser user2 = mAuth.getInstance().getCurrentUser();
+                FirebaseUser user2 = FirebaseAuth.getInstance().getCurrentUser();
             }
         });
     }

@@ -31,8 +31,9 @@ public class AppDetectionService extends AccessibilityService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!intent.getBooleanExtra("ACTIVATE", true)) {
-            //disableSelf();
+        Boolean activate = intent.getExtras().getBoolean("ACTIVATE");
+        if (activate) {
+            disableSelf();
         }
         return super.onStartCommand(intent, flags, startId);
     }

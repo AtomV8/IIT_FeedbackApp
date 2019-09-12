@@ -26,8 +26,8 @@ public class LoginEmailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_email);
-        emailField = (EditText) findViewById(R.id.editTextEmail);
-        passwordField = (EditText) findViewById(R.id.editTextPassword);
+        emailField = findViewById(R.id.editTextEmail);
+        passwordField = findViewById(R.id.editTextPassword);
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {

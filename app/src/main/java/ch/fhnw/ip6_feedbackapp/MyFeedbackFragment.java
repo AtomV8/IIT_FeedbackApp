@@ -62,13 +62,13 @@ public class MyFeedbackFragment extends Fragment {
     public void onReceiveFeedback(ArrayList<FeedbackLoader.FeedbackEntryObject> list) {
         ArrayList<FeedbackLoader.FeedbackEntryObject> feedbackEntryObjects = list;
         // Remove all entries from the list that have not been submitted by this user
+        ArrayList<FeedbackLoader.FeedbackEntryObject> wrongUser = new ArrayList<>();
         for (FeedbackLoader.FeedbackEntryObject feo : feedbackEntryObjects) {
-            ArrayList<FeedbackLoader.FeedbackEntryObject> wrongUser = new ArrayList<>();
-            if (feo.getUserid() != FirebaseAuth.getInstance().getCurrentUser().getUid()) {
+            if (!feo.getUserid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                 wrongUser.add(feo);
             }
-            feedbackEntryObjects.remove(wrongUser);
         }
+        feedbackEntryObjects.removeAll(wrongUser);
         // Sort the feedback by timestamp
         if (feedbackEntryObjects.size() > 1) {
             Comparator<FeedbackLoader.FeedbackEntryObject> c = new Comparator<FeedbackLoader.FeedbackEntryObject>() {

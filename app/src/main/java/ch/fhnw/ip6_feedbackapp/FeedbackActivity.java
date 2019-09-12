@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -105,7 +106,7 @@ public class FeedbackActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarFeedback);
+        Toolbar toolbar = findViewById(R.id.toolbarFeedback);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -177,20 +178,20 @@ public class FeedbackActivity extends AppCompatActivity {
         ownFeedbackEmptyTextView = findViewById(R.id.textViewNoFeedbackOwn);
 
         // Initialize the feedback popup
-        feedbackButton = (Button) findViewById(R.id.btnFeedback);
+        feedbackButton = findViewById(R.id.btnFeedback);
         feedbackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(FeedbackActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.feedback_dialogue, null);
-                TextView title = (TextView) mView.findViewById(R.id.feedbackDialogueTitle);
+                TextView title = mView.findViewById(R.id.feedbackDialogueTitle);
                 title.setText(appName + " - Feedback");
 
-                final Chip chipComplaint = (Chip) mView.findViewById(R.id.chipComplaint);
+                final Chip chipComplaint = mView.findViewById(R.id.chipComplaint);
                 chipComplaint.setChipIcon(getResources().getDrawable(R.mipmap.ic_dislike_round));
-                final Chip chipIdea = (Chip) mView.findViewById(R.id.chipIdea);
+                final Chip chipIdea = mView.findViewById(R.id.chipIdea);
                 chipIdea.setChipIcon(getResources().getDrawable(R.mipmap.ic_idea_round));
-                final Chip chipPraise = (Chip) mView.findViewById(R.id.chipPraise);
+                final Chip chipPraise = mView.findViewById(R.id.chipPraise);
                 chipPraise.setChipIcon(getResources().getDrawable(R.mipmap.ic_like_round));
                 final EditText feedbackText = mView.findViewById(R.id.FeedbackDialogueDescriptionText);
                 final CheckBox checkBoxPublic = mView.findViewById(R.id.checkBoxFeedbackDialoguePublic);
@@ -282,13 +283,13 @@ public class FeedbackActivity extends AppCompatActivity {
         });
 
         // Initialize the rating popup
-        ratingButton = (Button) findViewById(R.id.btnRating);
+        ratingButton = findViewById(R.id.btnRating);
         ratingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(FeedbackActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.rating_dialogue, null);
-                TextView title = (TextView) mView.findViewById(R.id.ratingDialogueTitle);
+                TextView title = mView.findViewById(R.id.ratingDialogueTitle);
                 title.setText(appName + " - Bewertung");
 
 
@@ -463,7 +464,25 @@ public class FeedbackActivity extends AppCompatActivity {
 
     // Callback function that is called once the FeedbackLoader has loaded the feedback entries
     public void onReceiveFeedback(ArrayList<FeedbackLoader.FeedbackEntryObject> feedbackEntryObjects) {
-        // Only proceed if list has more than one element
+        removeFeedback();
+        // First get the average rating
+        if (feedbackEntryObjects.size() > 0){
+            float avgRating = 0;
+            float ratingSum = 0;
+            int ratings = 0;
+            for (FeedbackLoader.FeedbackEntryObject feo : feedbackEntryObjects) {
+                if (feo.isRating) {
+                    ratingSum += ((RatingDetails)feo.feedbackDetails).getRating();
+                    ratings++;
+                }
+            }
+            avgRating = ratingSum / (float) ratings;
+            RatingBar ratingBar = findViewById(R.id.ratingBar);
+            ratingBar.setRating(avgRating);
+            TextView textViewRatingsCount = findViewById(R.id.textViewRatings);
+            textViewRatingsCount.setText("("+Integer.toString(ratings)+")");
+        }
+            // Only proceed if list has more than one element
         if (feedbackEntryObjects.size() > 1) {
             // First prepare the community feedback
             ArrayList<FeedbackLoader.FeedbackEntryObject> communityFeedbackEntries = feedbackEntryObjects;
@@ -471,16 +490,16 @@ public class FeedbackActivity extends AppCompatActivity {
             if (FeedbackActivity.this.checkBoxOnlyCurrentVersion.isChecked()) {
                 ArrayList<FeedbackLoader.FeedbackEntryObject> wrongVersion = new ArrayList<>();
                 for (FeedbackLoader.FeedbackEntryObject feo : communityFeedbackEntries) {
-                    if (feo.feedbackDetails.getAppDetails().getAppVersion() != appDetails.getAppVersion()) {
+                    if (!feo.feedbackDetails.getAppDetails().getAppVersion().equals(appDetails.getAppVersion())) {
                         wrongVersion.add(feo);
                     }
                 }
-                communityFeedbackEntries.remove(wrongVersion);
+                communityFeedbackEntries.removeAll(wrongVersion);
             }
             // After filtering check again if list has more than one element
             if (communityFeedbackEntries.size() > 1) {
                 // Copy this list to use it later for the own feedback
-                ArrayList<FeedbackLoader.FeedbackEntryObject> listForOwnFeedback = communityFeedbackEntries;
+                ArrayList<FeedbackLoader.FeedbackEntryObject> listForOwnFeedback = (ArrayList<FeedbackLoader.FeedbackEntryObject>) communityFeedbackEntries.clone();
                 // Sort by number of likes, then timestamp descending
                 Collections.sort(communityFeedbackEntries);
                 // Insert the feedback into the view
@@ -489,14 +508,15 @@ public class FeedbackActivity extends AppCompatActivity {
                 communityFeedbackListView.setVisibility(View.VISIBLE);
                 communityFeedbackListEmptyTextView.setVisibility(View.GONE);
 
+                ArrayList<FeedbackLoader.FeedbackEntryObject> wrongUser = new ArrayList<>();
                 // Now prepare the own latest feedback
                 for (FeedbackLoader.FeedbackEntryObject feo : listForOwnFeedback) {
-                    ArrayList<FeedbackLoader.FeedbackEntryObject> wrongUser = new ArrayList<>();
-                    if (feo.getUserid() != userid) {
+                    if (!feo.getUserid().equals(userid)) {
                         wrongUser.add(feo);
                     }
-                    listForOwnFeedback.remove(wrongUser);
                 }
+                listForOwnFeedback.removeAll(wrongUser);
+
                 Collections.sort(listForOwnFeedback, new Comparator<FeedbackLoader.FeedbackEntryObject>() {
                     @Override
                     public int compare(FeedbackLoader.FeedbackEntryObject feedbackEntryObject, FeedbackLoader.FeedbackEntryObject t1) {
@@ -510,6 +530,7 @@ public class FeedbackActivity extends AppCompatActivity {
                         return 0;
                     }
                 });
+                Collections.reverse(listForOwnFeedback);
                 FeedbackLoader.FeedbackEntryObject latestOwnFeedback = listForOwnFeedback.get(0);
                 putOwnFeedbackIntoView(latestOwnFeedback);
 
@@ -519,7 +540,7 @@ public class FeedbackActivity extends AppCompatActivity {
                 communityFeedbackListView.setVisibility(View.VISIBLE);
                 communityFeedbackListEmptyTextView.setVisibility(View.GONE);
 
-                if (communityFeedbackEntries.get(0).userid == userid) {
+                if (communityFeedbackEntries.get(0).userid.equals(userid)) {
                     FeedbackLoader.FeedbackEntryObject latestOwnFeedback = communityFeedbackEntries.get(0);
                     putOwnFeedbackIntoView(latestOwnFeedback);
                 }
@@ -530,7 +551,7 @@ public class FeedbackActivity extends AppCompatActivity {
             communityFeedbackListView.setVisibility(View.VISIBLE);
             communityFeedbackListEmptyTextView.setVisibility(View.GONE);
 
-            if (feedbackEntryObjects.get(0).userid == userid) {
+            if (feedbackEntryObjects.get(0).userid.equals(userid)) {
                 FeedbackLoader.FeedbackEntryObject latestOwnFeedback = feedbackEntryObjects.get(0);
                 putOwnFeedbackIntoView(latestOwnFeedback);
             }
@@ -539,7 +560,7 @@ public class FeedbackActivity extends AppCompatActivity {
 
     private void removeFeedback() {
         communityFeedbackListView.setAdapter(null);
-        if (ownFeedbackEmptyTextView.getVisibility() != View.VISIBLE) {
+        if (ownFeedbackEmptyTextView.getVisibility() != View.VISIBLE && ownFeedbackLinLay.getChildCount() > 1) {
             ownFeedbackLinLay.removeViewAt(1);
         }
     }
@@ -809,6 +830,7 @@ public class FeedbackActivity extends AppCompatActivity {
                 ref.push().setValue(feedbackObject);
             }
             FeedbackActivity.this.pendingFeedback = null;
+            removeFeedback();
         }
 
         @Override

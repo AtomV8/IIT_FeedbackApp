@@ -31,6 +31,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isServiceRunning = false;
 
     private DrawerLayout drawer;
+    private TextView labelUserName;
+    private TextView labelUserEmail;
+    private ImageView imageUserPic;
+
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -38,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("MAINONCREATE", "");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -46,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                mUser = firebaseAuth.getCurrentUser();
-                if (mUser == null) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
                     Intent i = new Intent(getApplicationContext(), LoginChoiceActivity.class);
                     startActivity(i);
                 } else {
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         createNotificationChannel();
                         startService();
                     }
+                    mUser = user;
                 }
             }
         };
@@ -66,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        View header = navigationView.getHeaderView(0);
+        labelUserName = header.findViewById(R.id.userName);
+        labelUserEmail = header.findViewById(R.id.userEmail);
+        imageUserPic = header.findViewById(R.id.userPic);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -75,18 +84,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MyAppsFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_myApps);
         }
-        if (mUser != null) {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Intent i = new Intent(getApplicationContext(), LoginChoiceActivity.class);
+            startActivity(i);
+        }else{
             updateUI();
         }
     }
 
     public void updateUI() {
-        TextView labelUserName = findViewById(R.id.userName);
-        TextView labelUserEmail = findViewById(R.id.userEmail);
-        ImageView imageUserPic = findViewById(R.id.userPic);
-
-        labelUserEmail.setText(mUser.getEmail());
-        labelUserName.setText(mUser.getDisplayName());
+        labelUserEmail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        labelUserName.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
     }
 
     public void logout(View view) {
