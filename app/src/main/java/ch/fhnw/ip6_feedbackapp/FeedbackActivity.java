@@ -501,6 +501,14 @@ public class FeedbackActivity extends AppCompatActivity {
             if (communityFeedbackEntries.size() > 1) {
                 // Copy this list to use it later for the own feedback
                 ArrayList<FeedbackLoader.FeedbackEntryObject> listForOwnFeedback = (ArrayList<FeedbackLoader.FeedbackEntryObject>) communityFeedbackEntries.clone();
+                // Remove non-public feedback
+                ArrayList<FeedbackLoader.FeedbackEntryObject> nonPublic = new ArrayList<>();
+                for (FeedbackLoader.FeedbackEntryObject feo : communityFeedbackEntries) {
+                    if (!feo.feedbackDetails.isMakePublic()) {
+                        nonPublic.add(feo);
+                    }
+                }
+                communityFeedbackEntries.removeAll(nonPublic);
                 // Sort by number of likes, then timestamp descending
                 Collections.sort(communityFeedbackEntries);
                 // Insert the feedback into the view
@@ -517,29 +525,32 @@ public class FeedbackActivity extends AppCompatActivity {
                     }
                 }
                 listForOwnFeedback.removeAll(wrongUser);
-
-                Collections.sort(listForOwnFeedback, new Comparator<FeedbackLoader.FeedbackEntryObject>() {
-                    @Override
-                    public int compare(FeedbackLoader.FeedbackEntryObject feedbackEntryObject, FeedbackLoader.FeedbackEntryObject t1) {
-                        try {
-                            Long timeStampThis = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(feedbackEntryObject.feedbackDetails.getTimestamp()).getTime();
-                            Long timeStampOther = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(t1.feedbackDetails.getTimestamp()).getTime();
-                            return timeStampThis.compareTo(timeStampOther);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                if(listForOwnFeedback.size() > 0){
+                    Collections.sort(listForOwnFeedback, new Comparator<FeedbackLoader.FeedbackEntryObject>() {
+                        @Override
+                        public int compare(FeedbackLoader.FeedbackEntryObject feedbackEntryObject, FeedbackLoader.FeedbackEntryObject t1) {
+                            try {
+                                Long timeStampThis = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(feedbackEntryObject.feedbackDetails.getTimestamp()).getTime();
+                                Long timeStampOther = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(t1.feedbackDetails.getTimestamp()).getTime();
+                                return timeStampThis.compareTo(timeStampOther);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            return 0;
                         }
-                        return 0;
-                    }
-                });
-                Collections.reverse(listForOwnFeedback);
-                FeedbackLoader.FeedbackEntryObject latestOwnFeedback = listForOwnFeedback.get(0);
-                putOwnFeedbackIntoView(latestOwnFeedback);
+                    });
+                    Collections.reverse(listForOwnFeedback);
+                    FeedbackLoader.FeedbackEntryObject latestOwnFeedback = listForOwnFeedback.get(0);
+                    putOwnFeedbackIntoView(latestOwnFeedback);
+                }
 
             } else if (communityFeedbackEntries.size() == 1) {
-                CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, feedbackEntryObjects);
-                communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
-                communityFeedbackListView.setVisibility(View.VISIBLE);
-                communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+                if(feedbackEntryObjects.get(0).feedbackDetails.isMakePublic()){
+                    CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, feedbackEntryObjects);
+                    communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
+                    communityFeedbackListView.setVisibility(View.VISIBLE);
+                    communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+                }
 
                 if (communityFeedbackEntries.get(0).userid.equals(userid)) {
                     FeedbackLoader.FeedbackEntryObject latestOwnFeedback = communityFeedbackEntries.get(0);
@@ -547,10 +558,12 @@ public class FeedbackActivity extends AppCompatActivity {
                 }
             }
         } else if (feedbackEntryObjects.size() == 1) {
-            CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, feedbackEntryObjects);
-            communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
-            communityFeedbackListView.setVisibility(View.VISIBLE);
-            communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+            if(feedbackEntryObjects.get(0).feedbackDetails.isMakePublic()){
+                CommunityFeedbackListAdapter communityFeedbackListAdapter = new CommunityFeedbackListAdapter(this, feedbackEntryObjects);
+                communityFeedbackListView.setAdapter(communityFeedbackListAdapter);
+                communityFeedbackListView.setVisibility(View.VISIBLE);
+                communityFeedbackListEmptyTextView.setVisibility(View.GONE);
+            }
 
             if (feedbackEntryObjects.get(0).userid.equals(userid)) {
                 FeedbackLoader.FeedbackEntryObject latestOwnFeedback = feedbackEntryObjects.get(0);
