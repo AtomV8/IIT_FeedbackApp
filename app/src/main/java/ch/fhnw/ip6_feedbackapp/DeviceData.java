@@ -1,5 +1,6 @@
 package ch.fhnw.ip6_feedbackapp;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.location.LocationManager;
 import android.net.wifi.WifiInfo;
@@ -44,6 +45,8 @@ public class DeviceData {
 
 
     public void getData() {
+
+        /* TODO: Check shared preferences and only get the according device data */
 
         deviceManufacturer = pullDeviceManufacturer();
         deviceModel = pullDeviceModel();
@@ -187,7 +190,7 @@ public class DeviceData {
     }
 
     public String pullBluetoothState() {
-        // if(BluetoothAdapter.getDefaultAdapter().isEnabled()) return "On";
+        if(BluetoothAdapter.getDefaultAdapter().isEnabled()) return "On";
         return "Off";
     }
 
@@ -229,6 +232,58 @@ public class DeviceData {
         return longitude;
     }
 
+    public String getDeviceManufacturer() {
+        return deviceManufacturer;
+    }
+
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+
+    public String getSoc() {
+        return soc;
+    }
+
+    public String getAndroidSDK() {
+        return androidSDK;
+    }
+
+    public String getAndroidVersion() {
+        return androidVersion;
+    }
+
+    public long getRamTotal() {
+        return ramTotal;
+    }
+
+    public long getRamFree() {
+        return ramFree;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public String getMobileDataConnectivity() {
+        return mobileDataConnectivity;
+    }
+
+    public String getBluetoothState() {
+        return bluetoothState;
+    }
+
+    public String getWifiState() {
+        return wifiState;
+    }
+
+    public String getGpsState() {
+        return gpsState;
+    }
+
+    public int getBatteryPercentage() {
+        return batteryPercentage;
+    }
+
     // --------------- SETTERS -------------------
 
     public void setLatitude(double latitude) {
@@ -237,6 +292,58 @@ public class DeviceData {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public void setDeviceManufacturer(String deviceManufacturer) {
+        this.deviceManufacturer = deviceManufacturer;
+    }
+
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
+    }
+
+    public void setSoc(String soc) {
+        this.soc = soc;
+    }
+
+    public void setAndroidSDK(String androidSDK) {
+        this.androidSDK = androidSDK;
+    }
+
+    public void setAndroidVersion(String androidVersion) {
+        this.androidVersion = androidVersion;
+    }
+
+    public void setRamTotal(long ramTotal) {
+        this.ramTotal = ramTotal;
+    }
+
+    public void setRamFree(long ramFree) {
+        this.ramFree = ramFree;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public void setMobileDataConnectivity(String mobileDataConnectivity) {
+        this.mobileDataConnectivity = mobileDataConnectivity;
+    }
+
+    public void setBluetoothState(String bluetoothState) {
+        this.bluetoothState = bluetoothState;
+    }
+
+    public void setWifiState(String wifiState) {
+        this.wifiState = wifiState;
+    }
+
+    public void setGpsState(String gpsState) {
+        this.gpsState = gpsState;
+    }
+
+    public void setBatteryPercentage(int batteryPercentage) {
+        this.batteryPercentage = batteryPercentage;
     }
 }
 

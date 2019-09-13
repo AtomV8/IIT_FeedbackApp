@@ -1,6 +1,7 @@
 package ch.fhnw.ip6_feedbackapp;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -105,12 +106,14 @@ public class FeedbackLoader extends Thread {
                             String username = feedback.child("username").getValue(String.class);
                             String userid = feedback.child("userid").getValue(String.class);
                             // Distinguish between feedback and rating
-                            if (feedback.hasChild("feedbackDetails/complaint")) {
-                                FeedbackDetails feedbackDetails = feedback.child("feedbackDetails").getValue(FeedbackDetails.class);
-                                list.add(new FeedbackEntryObject(feedbackDetails, username, false, feedback.getKey(), userid));
-                            } else {
-                                RatingDetails ratingDetails = feedback.child("feedbackDetails").getValue(RatingDetails.class);
-                                list.add(new FeedbackEntryObject(ratingDetails, username, true, feedback.getKey(), userid));
+                            if(username != null && userid != null){
+                                if (feedback.hasChild("feedbackDetails/complaint")) {
+                                    FeedbackDetails feedbackDetails = feedback.child("feedbackDetails").getValue(FeedbackDetails.class);
+                                    list.add(new FeedbackEntryObject(feedbackDetails, username, false, feedback.getKey(), userid));
+                                } else {
+                                    RatingDetails ratingDetails = feedback.child("feedbackDetails").getValue(RatingDetails.class);
+                                    list.add(new FeedbackEntryObject(ratingDetails, username, true, feedback.getKey(), userid));
+                                }
                             }
                         }
                     }
@@ -206,13 +209,13 @@ public class FeedbackLoader extends Thread {
             Integer likesOther = other.feedbackDetails.getLikes();
             Integer compareLikes = likesThis.compareTo(likesOther);
             if (compareLikes != 0) {
-                return compareLikes;
+                return -compareLikes;
             }
             try {
                 Long timeStampThis = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(feedbackDetails.getTimestamp()).getTime();
                 Long timeStampOther = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(other.feedbackDetails.getTimestamp()).getTime();
                 int i = timeStampThis.compareTo(timeStampOther);
-                if(i != 0) return -1;
+                if(i != 0) return -i;
                 return i;
             } catch (ParseException e) {
                 e.printStackTrace();

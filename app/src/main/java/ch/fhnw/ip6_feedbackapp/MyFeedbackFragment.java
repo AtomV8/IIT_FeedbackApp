@@ -3,6 +3,7 @@ package ch.fhnw.ip6_feedbackapp;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +65,7 @@ public class MyFeedbackFragment extends Fragment {
         // Remove all entries from the list that have not been submitted by this user
         ArrayList<FeedbackLoader.FeedbackEntryObject> wrongUser = new ArrayList<>();
         for (FeedbackLoader.FeedbackEntryObject feo : feedbackEntryObjects) {
+            Log.d("USERIDERROR", feo.getUserid() + " " + feo.username);
             if (!feo.getUserid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                 wrongUser.add(feo);
             }
@@ -156,16 +158,7 @@ public class MyFeedbackFragment extends Fragment {
                 feedbackText.setVisibility(View.GONE);
             }
 
-            checkBoxLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    if (isChecked) {
-
-                    } else {
-                        //likeFeedback(invisibleFeedbackID.getText().toString());
-                    }
-                }
-            });
+            checkBoxLike.setEnabled(false);
             return row;
         }
 

@@ -47,6 +47,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
@@ -130,7 +131,7 @@ public class FeedbackActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         removeFeedback();
-        feedbackLoader = new FeedbackLoader(this, appDetails, userid);
+        feedbackLoader = new FeedbackLoader(FeedbackActivity.this, appDetails, userid);
         feedbackLoader.start();
         super.onResume();
     }
@@ -618,16 +619,7 @@ public class FeedbackActivity extends AppCompatActivity {
             feedbackText.setVisibility(View.GONE);
         }
 
-        checkBoxLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-
-                } else {
-                    //likeFeedback(invisibleFeedbackID.getText().toString());
-                }
-            }
-        });
+        checkBoxLike.setEnabled(false);
         ownFeedbackLinLay.addView(entry);
     }
 
@@ -697,16 +689,26 @@ public class FeedbackActivity extends AppCompatActivity {
                 feedbackText.setVisibility(View.GONE);
             }
 
-            checkBoxLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    if (isChecked) {
+            if(!communityFeedbackList.get(position).userid.equals(userid)){
+                checkIfLiked(invisibleFeedbackID.getText().toString(), checkBoxLike);
 
-                    } else {
-                        //likeFeedback(invisibleFeedbackID.getText().toString());
+                checkBoxLike.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                        if(!compoundButton.isPressed()){
+                            return;
+                        }
+                        if (isChecked) {
+                            likeFeedback(invisibleFeedbackID.getText().toString());
+                        } else {
+                            dislikeFeedback(invisibleFeedbackID.getText().toString());
+                        }
                     }
-                }
-            });
+                });
+            }else{
+                checkBoxLike.setEnabled(false);
+            }
+
             return row;
         }
 
@@ -714,10 +716,10 @@ public class FeedbackActivity extends AppCompatActivity {
             // Put a new like object into firebase db
             final FirebaseDatabase db = FirebaseDatabase.getInstance();
             DatabaseReference refUserLikes = db.getReference("likes" + "/" + userid);
-            refUserLikes.push().setValue(feedbackID);
+            refUserLikes.child(feedbackID).setValue("FeedbackID");
 
             // Increment likes count on feedback object in firebase db
-            DatabaseReference upvotesRef = db.getReference(callPackageName + "/" + feedbackID + "/feedbackDetails/likes");
+            DatabaseReference upvotesRef = db.getReference(callPackageName.replace('.', ':') + "/" + feedbackID + "/feedbackDetails/likes");
             upvotesRef.runTransaction(new Transaction.Handler() {
                 @NonNull
                 @Override
@@ -732,35 +734,59 @@ public class FeedbackActivity extends AppCompatActivity {
                 public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
                 }
             });
+            removeFeedback();
         }
 
         public void dislikeFeedback(String feedbackID) {
+            // Remove a like object from the firebase db
             final FirebaseDatabase db = FirebaseDatabase.getInstance();
+            DatabaseReference refUserLikes = db.getReference("likes" + "/" + userid);
+            refUserLikes.child(feedbackID).removeValue();
 
+            // Decrement likes count on feedback object in firebase db
+            DatabaseReference upvotesRef = db.getReference(callPackageName.replace('.', ':') + "/" + feedbackID + "/feedbackDetails/likes");
+            upvotesRef.runTransaction(new Transaction.Handler() {
+                @NonNull
+                @Override
+                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                    Integer likesCurrent = mutableData.getValue(Integer.class);
+                    mutableData.setValue(likesCurrent - 1);
 
-        }
-
-        public void checkIfLiked(final String feedbackID) {
-            final FirebaseDatabase db = FirebaseDatabase.getInstance();
-            DatabaseReference ref = db.getReference("likes" + "/" + userid);
-            ValueEventListener eventListener = new ValueEventListener() {
-                boolean likeExists = false;
+                    return Transaction.success(mutableData);
+                }
 
                 @Override
+                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                }
+            });
+            removeFeedback();
+        }
+
+        public void checkIfLiked(final String feedbackID, final CheckBox checkBox) {
+            final FirebaseDatabase db = FirebaseDatabase.getInstance();
+            DatabaseReference ref = db.getReference("likes").child(userid);
+
+            ValueEventListener eventListener = new ValueEventListener() {
+                @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    boolean likeExists = dataSnapshot.hasChild(feedbackID);
-                    onReceiveLikeExists(likeExists);
+                    if(dataSnapshot.hasChild(feedbackID)){
+                        onReceiveLikeExists(true, checkBox);
+                    }else{
+                        onReceiveLikeExists(false, checkBox);
+                    }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    onReceiveLikeExists(likeExists);
+                    onReceiveLikeExists(false, checkBox);
                 }
             };
+
             ref.addListenerForSingleValueEvent(eventListener);
         }
 
-        public void onReceiveLikeExists(boolean exists) {
+        public void onReceiveLikeExists(boolean exists, CheckBox checkBox) {
+            checkBox.setChecked(exists);
         }
 
         @Override
@@ -795,8 +821,10 @@ public class FeedbackActivity extends AppCompatActivity {
 
         // Get gps coordinates from gpsLocationHelper
         public void receiveGPSCoordinates(double lat, double lon) {
-            feedbackObject.getDeviceData().setLatitude(lat);
-            feedbackObject.getDeviceData().setLongitude(lon);
+            DeviceData deviceData = new DeviceData(FeedbackActivity.this);
+            deviceData.setLatitude(lat);
+            deviceData.setLongitude(lon);
+            feedbackObject.setDeviceData(deviceData);
             // OK now send the feedback
             sendToDB();
         }
@@ -814,7 +842,7 @@ public class FeedbackActivity extends AppCompatActivity {
             // Wait for location to be detected if that setting is enabled
             SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             if (sharedPreferences.getBoolean(SHARED_PREFERENCES_GPS_LOCATION, true)) {
-                GPSLocationHelper gpsLocationHelper = new GPSLocationHelper();
+                new GPSLocationHelper();
             } else {
                 // Otherwise send the feedback straight away
                 sendToDB();
